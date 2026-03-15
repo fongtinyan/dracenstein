@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blog — Dracenstein</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--bg:#080808;--surface:#0f0f0f;--border:#1e1e1e;--accent:#c8a96e;--accent2:#4a9eff;--text:#e8e4dc;--muted:#666;--danger:#cc3333;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Share Tech Mono',monospace;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(200,169,110,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(200,169,110,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+.wrap{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:0 24px;}
+nav{padding:20px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+.logo{font-family:'Cinzel',serif;font-size:20px;font-weight:900;color:var(--accent);letter-spacing:3px;text-decoration:none;}
+.logo span{color:var(--danger);}
+nav a{color:var(--muted);text-decoration:none;font-size:12px;letter-spacing:2px;transition:color .2s;}
+nav a:hover{color:var(--accent);}
+.nav-links{display:flex;gap:28px;}
+.page-header{padding:60px 0 40px;border-bottom:1px solid var(--border);}
+.page-header h1{font-family:'Cinzel',serif;font-size:clamp(28px,5vw,48px);font-weight:900;color:var(--text);margin-bottom:8px;}
+.page-header p{font-size:12px;color:var(--muted);letter-spacing:2px;}
+.section{padding:40px 0;}
+.blog-list{display:flex;flex-direction:column;gap:0;border:1px solid var(--border);}
+.blog-entry{padding:24px 28px;border-bottom:1px solid var(--border);text-decoration:none;color:var(--text);display:grid;grid-template-columns:100px 1fr auto;align-items:center;gap:24px;transition:background .2s;}
+.blog-entry:last-child{border-bottom:none;}
+.blog-entry:hover{background:var(--surface);}
+.blog-date{font-size:11px;color:var(--muted);letter-spacing:1px;}
+.blog-title{font-size:14px;letter-spacing:1px;}
+.blog-week{font-size:11px;color:var(--accent);letter-spacing:2px;}
+.blog-tags{margin-top:4px;}
+.blog-tag{display:inline-block;font-size:9px;letter-spacing:2px;color:var(--accent2);border:1px solid rgba(74,158,255,0.2);padding:2px 6px;margin-right:4px;}
+footer{border-top:1px solid var(--border);padding:40px 0;display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--muted);}
+footer a{color:var(--muted);text-decoration:none;}
+footer a:hover{color:var(--accent);}
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px);pointer-events:none;z-index:999;}
+@media(max-width:600px){.blog-entry{grid-template-columns:1fr;gap:6px;}.nav-links{gap:16px;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav>
+    <a href="../" class="logo">DRACEN<span>STEIN</span></a>
+    <div class="nav-links">
+      <a href="./">BLOG</a>
+      <a href="../apps/">APPS</a>
+      <a href="https://github.com/fongtinyan/dracenstein" target="_blank">GITHUB</a>
+    </div>
+  </nav>
+  <div class="page-header">
+    <h1>Log</h1>
+    <p>// field notes from the lab</p>
+  </div>
+  <section class="section">
+    <div class="blog-list" id="blog-list"></div>
+  </section>
+  <footer>
+    <div>DRACENSTEIN — FONGTINYAN — SYDNEY</div>
+    <div><a href="https://github.com/fongtinyan/dracenstein" target="_blank">github</a> · <a href="https://jamison.com.au" target="_blank">jamison.com.au</a></div>
+  </footer>
+</div>
+<script src="../data.js"></script>
+<script>
+(function(){
+  var posts = SITE_DATA.posts;
+  var list = document.getElementById('blog-list');
+  posts.forEach(function(post){
+    var a = document.createElement('a');
+    a.href = post.file.replace(/^blog\//, '');
+    a.className = 'blog-entry';
+    a.innerHTML =
+      '<div class="blog-date">' + post.date.replace(/^(\d{4})-0?(\d+)$/, function(m,y,mo){
+        return ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][parseInt(mo)-1] + ' ' + y;
+      }) + '</div>' +
+      '<div><div class="blog-title">' + post.title + '</div>' +
+      (post.tags && post.tags.length ? '<div class="blog-tags">' + post.tags.map(function(t){ return '<span class="blog-tag">' + t + '</span>'; }).join('') + '</div>' : '') +
+      '</div>' +
+      '<div class="blog-week">WK ' + String(post.week).padStart(3,'0') + '</div>';
+    list.appendChild(a);
+  });
+  if(posts.length === 0){
+    var empty = document.createElement('div');
+    empty.className = 'blog-entry';
+    empty.style.cssText = 'opacity:.4;cursor:default;';
+    empty.innerHTML = '<div class="blog-date">\u2014</div><div class="blog-title">No entries yet...</div><div class="blog-week">\u2014</div>';
+    list.appendChild(empty);
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apps — Dracenstein</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--bg:#080808;--surface:#0f0f0f;--border:#1e1e1e;--accent:#c8a96e;--accent2:#4a9eff;--text:#e8e4dc;--muted:#666;--danger:#cc3333;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Share Tech Mono',monospace;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(200,169,110,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(200,169,110,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+.wrap{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:0 24px;}
+nav{padding:20px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+.logo{font-family:'Cinzel',serif;font-size:20px;font-weight:900;color:var(--accent);letter-spacing:3px;text-decoration:none;}
+.logo span{color:var(--danger);}
+nav a{color:var(--muted);text-decoration:none;font-size:12px;letter-spacing:2px;transition:color .2s;}
+nav a:hover{color:var(--accent);}
+.nav-links{display:flex;gap:28px;}
+.page-header{padding:60px 0 40px;border-bottom:1px solid var(--border);}
+.page-header h1{font-family:'Cinzel',serif;font-size:clamp(28px,5vw,48px);font-weight:900;color:var(--text);margin-bottom:8px;}
+.page-header p{font-size:12px;color:var(--muted);letter-spacing:2px;}
+.section{padding:40px 0;}
+.apps-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);}
+.app-card{background:var(--bg);padding:28px;text-decoration:none;color:var(--text);display:block;transition:background .2s;position:relative;overflow:hidden;}
+.app-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent);transform:scaleX(0);transform-origin:left;transition:transform .3s;}
+.app-card:hover{background:var(--surface);}
+.app-card:hover::before{transform:scaleX(1);}
+.app-week{font-size:10px;letter-spacing:3px;color:var(--muted);margin-bottom:12px;}
+.app-name{font-family:'Cinzel',serif;font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px;}
+.app-desc{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:16px;}
+.app-tag{display:inline-block;font-size:10px;letter-spacing:2px;color:var(--accent2);border:1px solid rgba(74,158,255,0.3);padding:3px 8px;margin-right:4px;}
+.app-arrow{position:absolute;bottom:24px;right:24px;font-size:18px;color:var(--border);transition:color .2s, transform .2s;}
+.app-card:hover .app-arrow{color:var(--accent);transform:translate(3px,-3px);}
+footer{border-top:1px solid var(--border);padding:40px 0;display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--muted);}
+footer a{color:var(--muted);text-decoration:none;}
+footer a:hover{color:var(--accent);}
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px);pointer-events:none;z-index:999;}
+@media(max-width:600px){.nav-links{gap:16px;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav>
+    <a href="../" class="logo">DRACEN<span>STEIN</span></a>
+    <div class="nav-links">
+      <a href="../blog/">BLOG</a>
+      <a href="./">APPS</a>
+      <a href="https://github.com/fongtinyan/dracenstein" target="_blank">GITHUB</a>
+    </div>
+  </nav>
+  <div class="page-header">
+    <h1>Apps</h1>
+    <p id="app-count"></p>
+  </div>
+  <section class="section">
+    <div class="apps-grid" id="apps-grid"></div>
+  </section>
+  <footer>
+    <div>DRACENSTEIN — FONGTINYAN — SYDNEY</div>
+    <div><a href="https://github.com/fongtinyan/dracenstein" target="_blank">github</a> · <a href="https://jamison.com.au" target="_blank">jamison.com.au</a></div>
+  </footer>
+</div>
+<script src="../data.js"></script>
+<script>
+(function(){
+  var apps = SITE_DATA.apps;
+  var count = apps.length;
+  document.getElementById('app-count').textContent = '// ' + count + ' experiment' + (count === 1 ? '' : 's') + ' so far';
+  var grid = document.getElementById('apps-grid');
+  apps.forEach(function(app){
+    var a = document.createElement('a');
+    a.href = app.id + '/';
+    a.className = 'app-card';
+    a.innerHTML =
+      '<div class="app-week">WEEK ' + String(app.week).padStart(3,'0') + '</div>' +
+      '<div class="app-name">' + app.name + '</div>' +
+      '<div class="app-desc">' + app.desc + '</div>' +
+      app.tags.map(function(t){ return '<div class="app-tag">' + t + '</div>'; }).join(' ') +
+      '<div class="app-arrow">\u2197</div>';
+    grid.appendChild(a);
+  });
+  // Placeholder
+  var ph = document.createElement('div');
+  ph.className = 'app-card';
+  ph.style.cssText = 'opacity:.4;cursor:default;';
+  var nextWeek = (apps.length > 0 ? Math.max.apply(null, apps.map(function(a){ return a.week; })) + 1 : 1);
+  ph.innerHTML =
+    '<div class="app-week">WEEK ' + String(nextWeek).padStart(3,'0') + '</div>' +
+    '<div class="app-name">???</div>' +
+    '<div class="app-desc">Something is brewing in the lab.</div>' +
+    '<div class="app-tag">COMING</div>';
+  grid.appendChild(ph);
+})();
+</script>
+</body>
+</html>
