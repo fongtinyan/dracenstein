@@ -249,8 +249,8 @@ body::after{
   <nav>
     <a href="/" class="logo">DRACEN<span>STEIN</span></a>
     <div class="nav-links">
-      <a href="blog/">BLOG</a>
-      <a href="apps/">APPS</a>
+      <a href="blog/index.html">BLOG</a>
+      <a href="apps/index.html">APPS</a>
       <a href="https://github.com/fongtinyan/dracenstein" target="_blank">GITHUB</a>
     </div>
   </nav>
@@ -302,7 +302,7 @@ body::after{
   var grid = document.getElementById('apps-grid');
   apps.forEach(function(app){
     var a = document.createElement('a');
-    a.href = 'apps/' + app.id + '/';
+    a.href = 'apps/' + app.id + '/index.html';
     a.className = 'app-card';
     a.innerHTML =
       '<div class="app-week">WEEK ' + String(app.week).padStart(3,'0') + '</div>' +
