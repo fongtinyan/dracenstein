@@ -290,7 +290,7 @@ body::after{
   </footer>
 </div>
 
-<script src="/data.js"></script>
+<script src="data.js"></script>
 <script>
 (function(){
   var apps = SITE_DATA.apps;
@@ -302,7 +302,7 @@ body::after{
   var grid = document.getElementById('apps-grid');
   apps.forEach(function(app){
     var a = document.createElement('a');
-    a.href = '/apps/' + app.id + '/';
+    a.href = 'apps/' + app.id + '/';
     a.className = 'app-card';
     a.innerHTML =
       '<div class="app-week">WEEK ' + String(app.week).padStart(3,'0') + '</div>' +

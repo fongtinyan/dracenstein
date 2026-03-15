@@ -15,7 +15,7 @@ var SITE_DATA = {
   posts: [
     {
       title: 'I made Roblox in a chat window',
-      file: '/blog/week-002.html',
+      file: 'blog/week-002.html',
       date: '2026-03',
       week: 2,
       tags: ['THREE.JS', 'AI']
