@@ -57,7 +57,7 @@ canvas{display:block;position:absolute;inset:0;width:100%;height:100%;}
     <div id="viewmode">View: First Person</div>
     <div id="hud-tr"><div id="udisp"></div><div style="font-size:11px;opacity:.7;margin-top:2px;">Players online: 1,247</div></div>
     <div id="pk">+1 Coin!</div>
-    <div id="hint">W/S move · ←/→ rotate · Shift+←/→ strafe · drag to orbit camera · V view</div>
+    <div id="hint">W/S move · A/D/←/→ turn · Shift+←/→ strafe · drag to orbit · V view</div>
     <div id="chat-box"><div style="opacity:.7;margin-bottom:4px;">Chat</div><div id="chat"></div></div>
   </div>
   <div id="wn">
@@ -225,15 +225,13 @@ function runGame(){
     });
     if(ptimer>0){ptimer-=dt;if(ptimer<=0)pkEl.style.opacity='0';}
     var turnSpeed=2.5;
-    if(keys['ArrowLeft']&&!keys['ShiftLeft']&&!keys['ShiftRight'])bodyYaw+=turnSpeed*dt;
-    if(keys['ArrowRight']&&!keys['ShiftLeft']&&!keys['ShiftRight'])bodyYaw-=turnSpeed*dt;
+    if(keys['KeyA']||(keys['ArrowLeft']&&!keys['ShiftLeft']&&!keys['ShiftRight']))bodyYaw+=turnSpeed*dt;
+    if(keys['KeyD']||(keys['ArrowRight']&&!keys['ShiftLeft']&&!keys['ShiftRight']))bodyYaw-=turnSpeed*dt;
     var fwd=new THREE.Vector3(-Math.sin(bodyYaw),0,-Math.cos(bodyYaw));
     var rgt=new THREE.Vector3(Math.cos(bodyYaw),0,-Math.sin(bodyYaw));
     var mv=new THREE.Vector3();
     if(keys['KeyW'])mv.add(fwd);
     if(keys['KeyS'])mv.sub(fwd);
-    if(keys['KeyA'])mv.sub(rgt);
-    if(keys['KeyD'])mv.add(rgt);
     if((keys['ShiftLeft']||keys['ShiftRight'])&&keys['ArrowLeft'])mv.sub(rgt);
     if((keys['ShiftLeft']||keys['ShiftRight'])&&keys['ArrowRight'])mv.add(rgt);
     var moving=mv.length()>0;
@@ -241,12 +239,13 @@ function runGame(){
     playerChar.position.set(playerX,moving?Math.abs(Math.sin(t*6))*0.04:0,playerZ);
     playerChar.rotation.y=bodyYaw+Math.PI;
     if(moving){var w=Math.sin(t*6);playerChar.userData.lL.rotation.x=w*0.5;playerChar.userData.rL.rotation.x=-w*0.5;playerChar.userData.lA.rotation.x=-w*0.4;playerChar.userData.rA.rotation.x=w*0.4;}
+    var lookYaw=bodyYaw+camYaw;
     if(viewMode===0){
-      cam.position.set(playerX,1.6,playerZ);cam.rotation.y=camYaw;cam.rotation.x=pitch;
+      cam.position.set(playerX,1.6,playerZ);cam.rotation.y=lookYaw;cam.rotation.x=pitch;
       playerChar.visible=false;
     }else if(viewMode===1){
       var cdist=6,cheight=3;
-      cam.position.set(playerX+Math.sin(camYaw)*cdist,cheight,playerZ+Math.cos(camYaw)*cdist);
+      cam.position.set(playerX+Math.sin(lookYaw)*cdist,cheight,playerZ+Math.cos(lookYaw)*cdist);
       cam.lookAt(playerX,1.2,playerZ);
       playerChar.visible=true;
     }else{
