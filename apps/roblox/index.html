@@ -236,7 +236,7 @@ function runGame(){
     if((keys['ShiftLeft']||keys['ShiftRight'])&&keys['ArrowLeft'])mv.sub(rgt);
     if((keys['ShiftLeft']||keys['ShiftRight'])&&keys['ArrowRight'])mv.add(rgt);
     var moving=mv.length()>0;
-    if(moving){mv.normalize().multiplyScalar(7*dt);playerX=Math.max(-55,Math.min(55,playerX+mv.x));playerZ=Math.max(-55,Math.min(55,playerZ+mv.z));if(!startTime)startTime=performance.now();}
+    if(moving){mv.normalize().multiplyScalar(7*dt);playerX=Math.max(-55,Math.min(55,playerX+mv.x));playerZ=Math.max(-55,Math.min(55,playerZ+mv.z));if(!startTime)startTime=performance.now();camYaw*=Math.pow(0.05,dt);}
     playerChar.position.set(playerX,moving?Math.abs(Math.sin(t*6))*0.04:0,playerZ);
     playerChar.rotation.y=bodyYaw+Math.PI;
     if(moving){var w=Math.sin(t*6);playerChar.userData.lL.rotation.x=w*0.5;playerChar.userData.rL.rotation.x=-w*0.5;playerChar.userData.lA.rotation.x=-w*0.4;playerChar.userData.rA.rotation.x=w*0.4;}
