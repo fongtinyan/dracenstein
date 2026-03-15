@@ -1,7 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git:*)"
+      "Bash(git:*)",
+      "WebFetch(domain:cdnjs.cloudflare.com)",
+      "WebFetch(domain:api.cdnjs.com)",
+      "Bash(cd:*)",
+      "Bash(which npx:*)"
     ]
   }
 }

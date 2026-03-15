@@ -127,7 +127,7 @@ function runGame(){
   cam.position.set(0,1.6,0);cam.rotation.order='YXZ';
   scene.add(new THREE.AmbientLight(0xffffff,0.85));
   var sunL=new THREE.DirectionalLight(0xfffaee,1.0);sunL.position.set(15,30,10);scene.add(sunL);
-  scene.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(120,0.5,120),new THREE.MeshLambertMaterial({color:0x6dc66d})),{position:new THREE.Vector3(0,-0.25,0)}));
+  var ground=new THREE.Mesh(new THREE.BoxGeometry(120,0.5,120),new THREE.MeshLambertMaterial({color:0x6dc66d}));ground.position.set(0,-0.25,0);scene.add(ground);
   [[8,1,0],[14,1.5,0],[20,2,0],[26,2,4],[26,2,10],[20,2,14],[14,3,14],[8,3,14],[2,3,10],[2,4,4],[-6,4,0]].forEach(function(p,i){
     var pl=new THREE.Mesh(new THREE.BoxGeometry(4,0.5,4),new THREE.MeshLambertMaterial({color:[0xcc4444,0x4488cc,0x44cc44,0xccaa44,0xaa44cc][i%5]}));
     pl.position.set(p[0],p[1],p[2]);scene.add(pl);
