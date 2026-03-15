@@ -230,8 +230,8 @@ function runGame(){
     var fwd=new THREE.Vector3(-Math.sin(bodyYaw),0,-Math.cos(bodyYaw));
     var rgt=new THREE.Vector3(Math.cos(bodyYaw),0,-Math.sin(bodyYaw));
     var mv=new THREE.Vector3();
-    if(keys['KeyW']||keys['ArrowUp'])mv.add(fwd);
-    if(keys['KeyS']||keys['ArrowDown'])mv.sub(fwd);
+    if(keys['KeyW'])mv.add(fwd);
+    if(keys['KeyS'])mv.sub(fwd);
     if(keys['KeyA'])mv.sub(rgt);
     if(keys['KeyD'])mv.add(rgt);
     if((keys['ShiftLeft']||keys['ShiftRight'])&&keys['ArrowLeft'])mv.sub(rgt);
@@ -241,12 +241,13 @@ function runGame(){
     playerChar.position.set(playerX,moving?Math.abs(Math.sin(t*6))*0.04:0,playerZ);
     playerChar.rotation.y=bodyYaw+Math.PI;
     if(moving){var w=Math.sin(t*6);playerChar.userData.lL.rotation.x=w*0.5;playerChar.userData.rL.rotation.x=-w*0.5;playerChar.userData.lA.rotation.x=-w*0.4;playerChar.userData.rA.rotation.x=w*0.4;}
+    var lookYaw=bodyYaw+camYaw;
     if(viewMode===0){
-      cam.position.set(playerX,1.6,playerZ);cam.rotation.y=camYaw;cam.rotation.x=pitch;
+      cam.position.set(playerX,1.6,playerZ);cam.rotation.y=lookYaw;cam.rotation.x=pitch;
       playerChar.visible=false;
     }else if(viewMode===1){
       var cdist=6,cheight=3;
-      cam.position.set(playerX+Math.sin(camYaw)*cdist,cheight,playerZ+Math.cos(camYaw)*cdist);
+      cam.position.set(playerX+Math.sin(lookYaw)*cdist,cheight,playerZ+Math.cos(lookYaw)*cdist);
       cam.lookAt(playerX,1.2,playerZ);
       playerChar.visible=true;
     }else{
