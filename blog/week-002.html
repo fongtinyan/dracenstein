@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 002 — I made Roblox in a chat window | Dracenstein</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Share+Tech+Mono&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#080808;--surface:#0f0f0f;--border:#1e1e1e;
+  --accent:#c8a96e;--accent2:#4a9eff;--text:#e8e4dc;--muted:#666;--danger:#cc3333;
+}
+body{background:var(--bg);color:var(--text);font-family:'Share Tech Mono',monospace;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(200,169,110,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(200,169,110,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+.wrap{position:relative;z-index:1;max-width:720px;margin:0 auto;padding:0 24px;}
+nav{padding:20px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+.logo{font-family:'Cinzel',serif;font-size:20px;font-weight:900;color:var(--accent);letter-spacing:3px;text-decoration:none;}
+.logo span{color:var(--danger);}
+nav a{color:var(--muted);text-decoration:none;font-size:12px;letter-spacing:2px;transition:color .2s;}
+nav a:hover{color:var(--accent);}
+
+.post-header{padding:60px 0 40px;border-bottom:1px solid var(--border);}
+.post-meta{font-size:11px;color:var(--muted);letter-spacing:3px;margin-bottom:20px;}
+.post-meta span{color:var(--accent);}
+.post-title{font-family:'Cinzel',serif;font-size:clamp(28px,5vw,48px);font-weight:900;line-height:1.1;margin-bottom:20px;}
+.post-sub{font-size:13px;color:var(--muted);line-height:1.8;}
+
+.post-body{padding:48px 0;font-family:'Lora',serif;font-size:17px;line-height:1.9;color:#ccc8c0;}
+.post-body p{margin-bottom:24px;}
+.post-body h2{font-family:'Cinzel',serif;font-size:16px;letter-spacing:3px;color:var(--accent);margin:48px 0 16px;font-weight:700;}
+.post-body strong{color:var(--text);font-weight:600;}
+.post-body em{color:var(--accent2);}
+.post-body code{font-family:'Share Tech Mono',monospace;font-size:14px;color:var(--accent);background:var(--surface);padding:2px 8px;border:1px solid var(--border);}
+.callout{background:var(--surface);border-left:3px solid var(--accent);padding:20px 24px;margin:32px 0;font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--text);line-height:1.7;}
+
+.post-footer{border-top:1px solid var(--border);padding:40px 0;display:flex;justify-content:space-between;align-items:center;}
+.post-footer a{color:var(--muted);text-decoration:none;font-size:12px;letter-spacing:1px;}
+.post-footer a:hover{color:var(--accent);}
+footer{border-top:1px solid var(--border);padding:40px 0;display:flex;justify-content:space-between;font-size:11px;color:var(--muted);}
+footer a{color:var(--muted);text-decoration:none;}
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px);pointer-events:none;z-index:999;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav>
+    <a href="/" class="logo">DRACEN<span>STEIN</span></a>
+    <a href="/blog">← BACK</a>
+  </nav>
+
+  <div class="post-header">
+    <div class="post-meta">WEEK <span>002</span> · MARCH 2026 · SYDNEY</div>
+    <h1 class="post-title">I made Roblox in a chat window</h1>
+    <p class="post-sub">No code editor. No terminal. Just a conversation.</p>
+  </div>
+
+  <div class="post-body">
+    <p>I asked Claude to make something 3D. That's it. That's how this started.</p>
+
+    <p>I'd been messing around with 2D stuff — a castle, some basic tools, an ERP thing for the business. All built the same way, just chatting. But I hadn't pushed into 3D yet. So I asked.</p>
+
+    <h2>// what happened</h2>
+
+    <p>First attempt — black screen. The iframe sandbox was killing the pointer lock API. We debugged it together. Second attempt — black screen again. Third attempt — something rendered, but the camera was in the sky looking down at tiny trees like a god who'd had a few too many.</p>
+
+    <p>The ground wasn't rendering. Turns out <code>PlaneGeometry</code> with a rotation transform is a classic Three.js gotcha — invisible from one side. Switched to a <code>BoxGeometry</code> lying flat. Ground appeared.</p>
+
+    <div class="callout">
+      The fix for most 3D rendering problems is simpler than you think.<br>
+      The problem is knowing which simple thing it is.
+    </div>
+
+    <p>Then I said <em>"make Roblox-like people walking around"</em> and Claude just... did. Blocky characters with heads, torsos, arms, legs, walk animations, name tags floating above them, wander AI picking random targets.</p>
+
+    <p>Then I said <em>"you can literally just make Roblox"</em> and it built a character customiser, shirt colour picker, username input, fake live chat scrolling in the corner, coins to collect, coloured obby platforms. The whole thing.</p>
+
+    <h2>// the realisation</h2>
+
+    <p>None of this is saved as a file anywhere. It's not an artifact. It's not a download. It's just <strong>content in a chat message</strong>. The same way text renders in a conversation, this 3D game with walking NPCs just... renders. Inline.</p>
+
+    <p>I sat there for a second going what the fark.</p>
+
+    <p>Then I thought about week 100. If week 2 is this, what does week 100 look like? I don't know. That's the point.</p>
+
+    <h2>// what this actually means</h2>
+
+    <p>I run a sheet metal business. I'm not a developer. I learned enough to build my invoicing tools in HTML but I'm not writing Three.js from scratch.</p>
+
+    <p>What changed today isn't that I can make games. It's that the gap between <em>"I want to build something"</em> and <em>"a thing exists"</em> just collapsed. The bottleneck used to be skill. Now the bottleneck is imagination and persistence.</p>
+
+    <div class="callout">
+      Build for yourself. Compound rather than be extracted from.<br>
+      Week 2 of 100. Writing it down.
+    </div>
+
+    <p>See you next week.</p>
+  </div>
+
+  <div class="post-footer">
+    <a href="/">← HOME</a>
+    <a href="/apps/roblox/">PLAY THE GAME →</a>
+  </div>
+
+  <footer>
+    <div>DRACENSTEIN · 2026</div>
+    <a href="/">dracenstein.com</a>
+  </footer>
+</div>
+</body>
+</html>

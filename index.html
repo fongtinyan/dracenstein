@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dracenstein</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#080808;
+  --surface:#0f0f0f;
+  --border:#1e1e1e;
+  --accent:#c8a96e;
+  --accent2:#4a9eff;
+  --text:#e8e4dc;
+  --muted:#666;
+  --danger:#cc3333;
+}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Share Tech Mono',monospace;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* Grid background */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:
+    linear-gradient(rgba(200,169,110,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(200,169,110,0.03) 1px, transparent 1px);
+  background-size:40px 40px;
+  pointer-events:none;
+  z-index:0;
+}
+
+.wrap{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:0 24px;}
+
+/* NAV */
+nav{
+  padding:20px 0;
+  border-bottom:1px solid var(--border);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.logo{
+  font-family:'Cinzel',serif;
+  font-size:20px;
+  font-weight:900;
+  color:var(--accent);
+  letter-spacing:3px;
+  text-decoration:none;
+}
+.logo span{color:var(--danger);}
+nav a{color:var(--muted);text-decoration:none;font-size:12px;letter-spacing:2px;transition:color .2s;}
+nav a:hover{color:var(--accent);}
+.nav-links{display:flex;gap:28px;}
+
+/* HERO */
+.hero{
+  padding:100px 0 80px;
+  border-bottom:1px solid var(--border);
+}
+.hero-label{
+  font-size:11px;
+  letter-spacing:4px;
+  color:var(--accent);
+  margin-bottom:20px;
+  text-transform:uppercase;
+}
+.hero h1{
+  font-family:'Cinzel',serif;
+  font-size:clamp(42px,8vw,88px);
+  font-weight:900;
+  line-height:0.95;
+  color:var(--text);
+  margin-bottom:24px;
+}
+.hero h1 em{
+  font-style:normal;
+  color:var(--accent);
+  display:block;
+}
+.hero-sub{
+  font-size:13px;
+  color:var(--muted);
+  line-height:1.8;
+  max-width:480px;
+  margin-bottom:40px;
+}
+.hero-sub strong{color:var(--accent2);}
+.week-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  padding:10px 18px;
+  font-size:12px;
+  letter-spacing:1px;
+}
+.week-badge .dot{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--danger);
+  animation:pulse 2s infinite;
+}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+
+/* SECTION */
+.section{padding:60px 0;}
+.section-header{
+  display:flex;
+  align-items:baseline;
+  gap:16px;
+  margin-bottom:40px;
+  border-bottom:1px solid var(--border);
+  padding-bottom:16px;
+}
+.section-title{
+  font-family:'Cinzel',serif;
+  font-size:13px;
+  font-weight:700;
+  letter-spacing:4px;
+  color:var(--accent);
+  text-transform:uppercase;
+}
+.section-count{font-size:11px;color:var(--muted);}
+
+/* APPS GRID */
+.apps-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  gap:1px;
+  background:var(--border);
+  border:1px solid var(--border);
+}
+.app-card{
+  background:var(--bg);
+  padding:28px;
+  text-decoration:none;
+  color:var(--text);
+  display:block;
+  transition:background .2s;
+  position:relative;
+  overflow:hidden;
+}
+.app-card::before{
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;
+  height:2px;
+  background:var(--accent);
+  transform:scaleX(0);
+  transform-origin:left;
+  transition:transform .3s;
+}
+.app-card:hover{background:var(--surface);}
+.app-card:hover::before{transform:scaleX(1);}
+.app-week{font-size:10px;letter-spacing:3px;color:var(--muted);margin-bottom:12px;}
+.app-name{
+  font-family:'Cinzel',serif;
+  font-size:18px;
+  font-weight:700;
+  color:var(--text);
+  margin-bottom:8px;
+}
+.app-desc{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:16px;}
+.app-tag{
+  display:inline-block;
+  font-size:10px;
+  letter-spacing:2px;
+  color:var(--accent2);
+  border:1px solid rgba(74,158,255,0.3);
+  padding:3px 8px;
+}
+.app-arrow{
+  position:absolute;
+  bottom:24px;right:24px;
+  font-size:18px;
+  color:var(--border);
+  transition:color .2s, transform .2s;
+}
+.app-card:hover .app-arrow{color:var(--accent);transform:translate(3px,-3px);}
+
+/* BLOG */
+.blog-list{display:flex;flex-direction:column;gap:0;border:1px solid var(--border);}
+.blog-entry{
+  padding:24px 28px;
+  border-bottom:1px solid var(--border);
+  text-decoration:none;
+  color:var(--text);
+  display:grid;
+  grid-template-columns:100px 1fr auto;
+  align-items:center;
+  gap:24px;
+  transition:background .2s;
+}
+.blog-entry:last-child{border-bottom:none;}
+.blog-entry:hover{background:var(--surface);}
+.blog-date{font-size:11px;color:var(--muted);letter-spacing:1px;}
+.blog-title{font-size:14px;letter-spacing:1px;}
+.blog-week{font-size:11px;color:var(--accent);letter-spacing:2px;}
+
+/* FOOTER */
+footer{
+  border-top:1px solid var(--border);
+  padding:40px 0;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-size:11px;
+  color:var(--muted);
+}
+footer a{color:var(--muted);text-decoration:none;}
+footer a:hover{color:var(--accent);}
+
+/* SCAN LINE effect */
+body::after{
+  content:'';
+  position:fixed;
+  inset:0;
+  background:repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.03) 2px,
+    rgba(0,0,0,0.03) 4px
+  );
+  pointer-events:none;
+  z-index:999;
+}
+
+@media(max-width:600px){
+  .blog-entry{grid-template-columns:1fr;gap:6px;}
+  .nav-links{gap:16px;}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <nav>
+    <a href="/" class="logo">DRACEN<span>STEIN</span></a>
+    <div class="nav-links">
+      <a href="/blog">BLOG</a>
+      <a href="#apps">APPS</a>
+      <a href="https://github.com/fongtinyan/dracenstein" target="_blank">GITHUB</a>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-label">// experiment log //</div>
+    <h1>The<em>Playground</em></h1>
+    <p class="hero-sub">
+      Building things with AI. Week by week.<br>
+      <strong>No roadmap. No plan. Just building.</strong>
+    </p>
+    <div class="week-badge">
+      <div class="dot"></div>
+      WEEK 002 — ACTIVE
+    </div>
+  </section>
+
+  <section class="section" id="apps">
+    <div class="section-header">
+      <div class="section-title">Apps</div>
+      <div class="section-count">// 1 experiment so far</div>
+    </div>
+    <div class="apps-grid">
+      <a href="/apps/roblox/" class="app-card">
+        <div class="app-week">WEEK 002</div>
+        <div class="app-name">Roblox Clone</div>
+        <div class="app-desc">3D world with walking NPCs, coin collection, character customiser. Built entirely in a Claude chat window.</div>
+        <div class="app-tag">THREE.JS</div>
+        <div class="app-arrow">↗</div>
+      </a>
+      <div class="app-card" style="opacity:.4;cursor:default;">
+        <div class="app-week">WEEK 003</div>
+        <div class="app-name">???</div>
+        <div class="app-desc">Something is brewing in the lab.</div>
+        <div class="app-tag">COMING</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="blog">
+    <div class="section-header">
+      <div class="section-title">Log</div>
+      <div class="section-count">// field notes</div>
+    </div>
+    <div class="blog-list">
+      <a href="/blog/week-002.html" class="blog-entry">
+        <div class="blog-date">MAR 2026</div>
+        <div class="blog-title">I made Roblox in a chat window</div>
+        <div class="blog-week">WK 002</div>
+      </a>
+      <div class="blog-entry" style="opacity:.4;cursor:default;">
+        <div class="blog-date">—</div>
+        <div class="blog-title">More entries incoming...</div>
+        <div class="blog-week">—</div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div>DRACENSTEIN — FONGTINYAN — SYDNEY</div>
+    <div><a href="https://github.com/fongtinyan/dracenstein" target="_blank">github</a> · <a href="https://jamison.com.au" target="_blank">jamison.com.au</a></div>
+  </footer>
+</div>
+
+</body>
+</html>
