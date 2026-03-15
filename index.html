@@ -271,23 +271,9 @@ body::after{
   <section class="section" id="apps">
     <div class="section-header">
       <div class="section-title">Apps</div>
-      <div class="section-count">// 1 experiment so far</div>
+      <div class="section-count" id="app-count"></div>
     </div>
-    <div class="apps-grid">
-      <a href="/apps/roblox/" class="app-card">
-        <div class="app-week">WEEK 002</div>
-        <div class="app-name">Roblox Clone</div>
-        <div class="app-desc">3D world with walking NPCs, coin collection, character customiser. Built entirely in a Claude chat window.</div>
-        <div class="app-tag">THREE.JS</div>
-        <div class="app-arrow">↗</div>
-      </a>
-      <div class="app-card" style="opacity:.4;cursor:default;">
-        <div class="app-week">WEEK 003</div>
-        <div class="app-name">???</div>
-        <div class="app-desc">Something is brewing in the lab.</div>
-        <div class="app-tag">COMING</div>
-      </div>
-    </div>
+    <div class="apps-grid" id="apps-grid"></div>
   </section>
 
   <section class="section" id="blog">
@@ -295,18 +281,7 @@ body::after{
       <div class="section-title">Log</div>
       <div class="section-count">// field notes</div>
     </div>
-    <div class="blog-list">
-      <a href="/blog/week-002.html" class="blog-entry">
-        <div class="blog-date">MAR 2026</div>
-        <div class="blog-title">I made Roblox in a chat window</div>
-        <div class="blog-week">WK 002</div>
-      </a>
-      <div class="blog-entry" style="opacity:.4;cursor:default;">
-        <div class="blog-date">—</div>
-        <div class="blog-title">More entries incoming...</div>
-        <div class="blog-week">—</div>
-      </div>
-    </div>
+    <div class="blog-list" id="blog-list"></div>
   </section>
 
   <footer>
@@ -315,5 +290,66 @@ body::after{
   </footer>
 </div>
 
+<script src="/data.js"></script>
+<script>
+(function(){
+  var apps = SITE_DATA.apps;
+  var posts = SITE_DATA.posts;
+
+  // Apps
+  var count = apps.length;
+  document.getElementById('app-count').textContent = '// ' + count + ' experiment' + (count === 1 ? '' : 's') + ' so far';
+  var grid = document.getElementById('apps-grid');
+  apps.forEach(function(app){
+    var a = document.createElement('a');
+    a.href = '/apps/' + app.id + '/';
+    a.className = 'app-card';
+    a.innerHTML =
+      '<div class="app-week">WEEK ' + String(app.week).padStart(3,'0') + '</div>' +
+      '<div class="app-name">' + app.name + '</div>' +
+      '<div class="app-desc">' + app.desc + '</div>' +
+      app.tags.map(function(t){ return '<div class="app-tag">' + t + '</div>'; }).join(' ') +
+      '<div class="app-arrow">\u2197</div>';
+    grid.appendChild(a);
+  });
+  // Placeholder
+  var ph = document.createElement('div');
+  ph.className = 'app-card';
+  ph.style.cssText = 'opacity:.4;cursor:default;';
+  var nextWeek = (apps.length > 0 ? Math.max.apply(null, apps.map(function(a){ return a.week; })) + 1 : 1);
+  ph.innerHTML =
+    '<div class="app-week">WEEK ' + String(nextWeek).padStart(3,'0') + '</div>' +
+    '<div class="app-name">???</div>' +
+    '<div class="app-desc">Something is brewing in the lab.</div>' +
+    '<div class="app-tag">COMING</div>';
+  grid.appendChild(ph);
+
+  // Blog
+  var list = document.getElementById('blog-list');
+  posts.forEach(function(post){
+    var a = document.createElement('a');
+    a.href = post.file;
+    a.className = 'blog-entry';
+    a.innerHTML =
+      '<div class="blog-date">' + post.date.replace(/^(\d{4})-0?(\d+)$/, function(m,y,mo){
+        return ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][parseInt(mo)-1] + ' ' + y;
+      }) + '</div>' +
+      '<div class="blog-title">' + post.title + '</div>' +
+      '<div class="blog-week">WK ' + String(post.week).padStart(3,'0') + '</div>';
+    list.appendChild(a);
+  });
+  // Placeholder
+  var bph = document.createElement('div');
+  bph.className = 'blog-entry';
+  bph.style.cssText = 'opacity:.4;cursor:default;';
+  bph.innerHTML = '<div class="blog-date">\u2014</div><div class="blog-title">More entries incoming...</div><div class="blog-week">\u2014</div>';
+  list.appendChild(bph);
+
+  // Update week badge
+  var latest = Math.max.apply(null, apps.map(function(a){ return a.week; }).concat(posts.map(function(p){ return p.week; })));
+  var badge = document.querySelector('.week-badge');
+  if(badge) badge.innerHTML = '<div class="dot"></div>WEEK ' + String(latest).padStart(3,'0') + ' \u2014 ACTIVE';
+})();
+</script>
 </body>
 </html>
