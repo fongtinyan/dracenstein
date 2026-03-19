@@ -79,7 +79,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
         <div class="form-group"><label>CONTENT</label><textarea id="post-content" required></textarea><small>Line breaks will be converted to paragraphs.</small></div>
         <div class="form-group"><label>WEEK NUMBER</label><input type="number" id="post-week" required min="1"></div>
         <div class="form-group"><label>TAGS</label><input type="text" id="post-tags" placeholder="AI, THREE.JS, DATABASE"><small>Comma separated.</small></div>
-        <button type="submit" class="submit-btn" id="post-btn">PUBLISH POST</button>
+        <button type="button" class="submit-btn" id="post-btn">PUBLISH POST</button>
         <div class="msg hidden" id="post-msg"></div>
       </form>
     </div>
@@ -91,7 +91,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
         <div class="form-group"><label>WEEK NUMBER</label><input type="number" id="app-week" required min="1"></div>
         <div class="form-group"><label>URL</label><input type="text" id="app-url" required placeholder="https://..."></div>
         <div class="form-group"><label>TAGS</label><input type="text" id="app-tags" placeholder="THREE.JS, SUPABASE"><small>Comma separated.</small></div>
-        <button type="submit" class="submit-btn" id="app-btn">ADD APP</button>
+        <button type="button" class="submit-btn" id="app-btn">ADD APP</button>
         <div class="msg hidden" id="app-msg"></div>
       </form>
     </div>
@@ -143,11 +143,9 @@ function supabaseInsert(table, data) {
   });
 }
 
-document.getElementById('post-btn').addEventListener('click', function(e) {
-  e.preventDefault();
-  var form = document.getElementById('post-form');
-  if (!form.checkValidity()) { form.reportValidity(); return; }
-  var btn = this;
+document.getElementById('post-btn').addEventListener('click', function() {
+  var btn = document.getElementById('post-btn');
+  if (!document.getElementById('post-title').value.trim()) { alert('Title required'); return; }
   btn.disabled = true;
   btn.textContent = 'PUBLISHING...';
 
@@ -173,11 +171,9 @@ document.getElementById('post-btn').addEventListener('click', function(e) {
   });
 });
 
-document.getElementById('app-btn').addEventListener('click', function(e) {
-  e.preventDefault();
-  var form = document.getElementById('app-form');
-  if (!form.checkValidity()) { form.reportValidity(); return; }
-  var btn = this;
+document.getElementById('app-btn').addEventListener('click', function() {
+  var btn = document.getElementById('app-btn');
+  if (!document.getElementById('app-name').value.trim()) { alert('Name required'); return; }
   btn.disabled = true;
   btn.textContent = 'ADDING...';
 
