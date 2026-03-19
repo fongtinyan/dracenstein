@@ -156,6 +156,8 @@ document.getElementById('post-btn').addEventListener('click', function() {
     tags: document.getElementById('post-tags').value.trim()
   };
 
+  showMsg('post-msg', 'Sending: ' + JSON.stringify(payload), false);
+
   supabaseInsert('posts', payload).then(function() {
     showMsg('post-msg', 'Post published successfully.', false);
     document.getElementById('post-title').value = '';
@@ -165,7 +167,7 @@ document.getElementById('post-btn').addEventListener('click', function() {
     btn.disabled = false;
     btn.textContent = 'PUBLISH POST';
   }, function(err) {
-    showMsg('post-msg', 'Error: ' + err, true);
+    showMsg('post-msg', 'FAILED: ' + err, true);
     btn.disabled = false;
     btn.textContent = 'PUBLISH POST';
   });
