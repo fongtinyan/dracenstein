@@ -61,9 +61,9 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     <div><a href="https://github.com/fongtinyan/dracenstein" target="_blank">github</a> · <a href="https://jamison.com.au" target="_blank">jamison.com.au</a></div>
   </footer>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-var SUPABASE_URL = 'https://pmvgkmiihqyvgjcdcyjw.supabase.co';
-var SUPABASE_KEY = 'sb_publishable_DEcvBo1uq0dPziHCrUwfTQ_0sq6xkz5';
+var sb = window.supabase.createClient('https://pmvgkmiihqyvgjcdcyjw.supabase.co', 'sb_publishable_DEcvBo1uq0dPziHCrUwfTQ_0sq6xkz5');
 
 function renderBlogList(posts) {
   var list = document.getElementById('blog-list');
@@ -117,17 +117,10 @@ function loadFromDataJs() {
 }
 
 // Try Supabase first, fall back to data.js
-fetch(SUPABASE_URL + '/rest/v1/posts?select=id,title,content,week,tags,created_at&order=week.desc', {
-  headers: {
-    'apikey': SUPABASE_KEY,
-    'Authorization': 'Bearer ' + SUPABASE_KEY
-  }
-})
+sb.from('posts').select('id,title,content,week,tags,created_at').order('week', {ascending: false})
 .then(function(res) {
-  if (!res.ok) throw new Error('Supabase error');
-  return res.json();
-})
-.then(function(supabasePosts) {
+  if (res.error) throw new Error(res.error.message);
+  var supabasePosts = res.data;
   // Merge: data.js posts first (they have static HTML files), then Supabase-only posts
   var merged = [];
   var seenWeeks = {};

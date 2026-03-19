@@ -76,9 +76,9 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   </footer>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-var SUPABASE_URL = 'https://pmvgkmiihqyvgjcdcyjw.supabase.co';
-var SUPABASE_KEY = 'sb_publishable_DEcvBo1uq0dPziHCrUwfTQ_0sq6xkz5';
+var sb = window.supabase.createClient('https://pmvgkmiihqyvgjcdcyjw.supabase.co', 'sb_publishable_DEcvBo1uq0dPziHCrUwfTQ_0sq6xkz5');
 
 (function() {
   var params = new URLSearchParams(window.location.search);
@@ -89,22 +89,11 @@ var SUPABASE_KEY = 'sb_publishable_DEcvBo1uq0dPziHCrUwfTQ_0sq6xkz5';
     return;
   }
 
-  fetch(SUPABASE_URL + '/rest/v1/posts?id=eq.' + postId + '&select=title,content,week,tags,created_at', {
-    headers: {
-      'apikey': SUPABASE_KEY,
-      'Authorization': 'Bearer ' + SUPABASE_KEY
-    }
-  })
+  sb.from('posts').select('title,content,week,tags,created_at').eq('id', postId).single()
   .then(function(res) {
-    if (!res.ok) throw new Error('Failed to fetch post');
-    return res.json();
-  })
-  .then(function(data) {
-    if (!data || data.length === 0) {
-      showError('Post not found.');
-      return;
-    }
-    renderPost(data[0]);
+    if (res.error) throw new Error(res.error.message);
+    if (!res.data) { showError('Post not found.'); return; }
+    renderPost(res.data);
   })
   .catch(function(err) {
     showError('Could not load post: ' + err.message);
