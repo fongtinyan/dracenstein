@@ -116,41 +116,26 @@ function loadFromDataJs() {
   return false;
 }
 
-// Try Supabase first, fall back to data.js
-sb.from('posts').select('id,title,content,week,tags,created_at').order('week', {ascending: false})
-.then(function(res) {
-  if (res.error) throw new Error(res.error.message);
-  var supabasePosts = res.data;
-  // Merge: data.js posts first (they have static HTML files), then Supabase-only posts
-  var merged = [];
-  var seenWeeks = {};
-
-  // Load data.js in background for static posts
-  var script = document.createElement('script');
-  script.src = '../data.js?t=' + Date.now();
-  script.onload = function() {
-    if (typeof SITE_DATA !== 'undefined' && SITE_DATA.posts) {
-      SITE_DATA.posts.forEach(function(p) { seenWeeks[p.week] = true; merged.push(p); });
-    }
-    supabasePosts.forEach(function(p) {
-      if (!seenWeeks[p.week]) merged.push(p);
-    });
-    merged.sort(function(a,b){ return b.week - a.week; });
-    renderBlogList(merged);
-  };
-  script.onerror = function() {
-    // No data.js, just use Supabase posts
-    renderBlogList(supabasePosts);
-  };
-  document.head.appendChild(script);
-})
-.catch(function() {
-  // Supabase failed, fall back to data.js
-  var script = document.createElement('script');
-  script.src = '../data.js?t=' + Date.now();
-  script.onload = function() { loadFromDataJs(); };
-  document.head.appendChild(script);
-});
+// Load data.js for static posts, then fetch Supabase posts, merge all
+var script = document.createElement('script');
+script.src = '../data.js?t=' + Date.now();
+script.onload = function() {
+  var staticPosts = (typeof SITE_DATA !== 'undefined' && SITE_DATA.posts) ? SITE_DATA.posts : [];
+  sb.from('posts').select('id,title,content,week,tags,created_at').order('created_at', {ascending: false})
+  .then(function(res) {
+    var dbPosts = (res.error || !res.data) ? [] : res.data;
+    var all = staticPosts.concat(dbPosts);
+    all.sort(function(a,b){ return (b.week || 0) - (a.week || 0); });
+    renderBlogList(all);
+  });
+};
+script.onerror = function() {
+  sb.from('posts').select('id,title,content,week,tags,created_at').order('created_at', {ascending: false})
+  .then(function(res) {
+    if (res.data) renderBlogList(res.data);
+  });
+};
+document.head.appendChild(script);
 </script>
 </body>
 </html>
