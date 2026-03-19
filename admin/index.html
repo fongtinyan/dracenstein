@@ -197,15 +197,15 @@ function submitPost(e) {
     tags: document.getElementById('post-tags').value.trim()
   };
 
-  sb.from('posts').insert(data).then(function(res) {
-    if (res.error) throw new Error(res.error.message);
-    showMsg('post-msg', 'Post published successfully.', false);
-    document.getElementById('post-form').reset();
-  }).catch(function(err) {
-    showMsg('post-msg', 'Error: ' + err.message, true);
-  }).finally(function() {
+  sb.from('posts').insert([data]).then(function(res) {
     btn.disabled = false;
     btn.textContent = 'PUBLISH POST';
+    if (res.error) {
+      showMsg('post-msg', 'Error: ' + res.error.message, true);
+    } else {
+      showMsg('post-msg', 'Post published successfully.', false);
+      document.getElementById('post-form').reset();
+    }
   });
 
   return false;
@@ -225,15 +225,15 @@ function submitApp(e) {
     tags: document.getElementById('app-tags').value.trim()
   };
 
-  sb.from('apps').insert(data).then(function(res) {
-    if (res.error) throw new Error(res.error.message);
-    showMsg('app-msg', 'App added successfully.', false);
-    document.getElementById('app-form').reset();
-  }).catch(function(err) {
-    showMsg('app-msg', 'Error: ' + err.message, true);
-  }).finally(function() {
+  sb.from('apps').insert([data]).then(function(res) {
     btn.disabled = false;
     btn.textContent = 'ADD APP';
+    if (res.error) {
+      showMsg('app-msg', 'Error: ' + res.error.message, true);
+    } else {
+      showMsg('app-msg', 'App added successfully.', false);
+      document.getElementById('app-form').reset();
+    }
   });
 
   return false;
