@@ -61,27 +61,103 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     <div><a href="https://github.com/fongtinyan/dracenstein" target="_blank">github</a> · <a href="https://jamison.com.au" target="_blank">jamison.com.au</a></div>
   </footer>
 </div>
-<script>document.write('<script src="../data.js?t='+Date.now()+'"><\/script>');</script>
 <script>
-(function(){
-  if(typeof SITE_DATA === 'undefined') return;
-  var posts = SITE_DATA.posts.slice().sort(function(a,b){ return b.week - a.week; });
+var SUPABASE_URL = 'https://pmvgkmiihqyvgjcdcyjw.supabase.co';
+var SUPABASE_KEY = 'sb_publishable_DEcvBo1uq0dPziHCrUwfTQ_0sq6xkz5';
+
+function renderBlogList(posts) {
   var list = document.getElementById('blog-list');
-  posts.forEach(function(post){
+  list.innerHTML = '';
+  posts.forEach(function(post) {
     var a = document.createElement('a');
-    a.href = post.file.replace(/^blog\//, '');
+    // If the post has a file field (from data.js), use that; otherwise link to post.html?id=
+    if (post.file) {
+      a.href = post.file.replace(/^blog\//, '');
+    } else {
+      a.href = 'post.html?id=' + post.id;
+    }
     a.className = 'blog-entry';
-    a.innerHTML =
-      '<div class="blog-date">' + post.date.replace(/^(\d{4})-0?(\d+)$/, function(m,y,mo){
+
+    // Date display
+    var dateStr = '';
+    if (post.date) {
+      dateStr = post.date.replace(/^(\d{4})-0?(\d+)$/, function(m,y,mo){
         return ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][parseInt(mo)-1] + ' ' + y;
-      }) + '</div>' +
+      });
+    } else if (post.created_at) {
+      var d = new Date(post.created_at);
+      dateStr = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][d.getMonth()] + ' ' + d.getFullYear();
+    }
+
+    // Tags — handle both array (data.js) and comma-separated string (Supabase)
+    var tags = [];
+    if (Array.isArray(post.tags)) {
+      tags = post.tags;
+    } else if (typeof post.tags === 'string' && post.tags.trim()) {
+      tags = post.tags.split(',').map(function(t){ return t.trim().toUpperCase(); });
+    }
+
+    a.innerHTML =
+      '<div class="blog-date">' + dateStr + '</div>' +
       '<div><div class="blog-title">' + post.title + '</div>' +
-      (post.tags && post.tags.length ? '<div class="blog-tags">' + post.tags.map(function(t){ return '<span class="blog-tag">' + t + '</span>'; }).join('') + '</div>' : '') +
+      (tags.length ? '<div class="blog-tags">' + tags.map(function(t){ return '<span class="blog-tag">' + t + '</span>'; }).join('') + '</div>' : '') +
       '</div>' +
       '<div class="blog-week">WK ' + String(post.week).padStart(3,'0') + '</div>';
     list.appendChild(a);
   });
-})();
+}
+
+function loadFromDataJs() {
+  if (typeof SITE_DATA !== 'undefined' && SITE_DATA.posts) {
+    var posts = SITE_DATA.posts.slice().sort(function(a,b){ return b.week - a.week; });
+    renderBlogList(posts);
+    return true;
+  }
+  return false;
+}
+
+// Try Supabase first, fall back to data.js
+fetch(SUPABASE_URL + '/rest/v1/posts?select=id,title,content,week,tags,created_at&order=week.desc', {
+  headers: {
+    'apikey': SUPABASE_KEY,
+    'Authorization': 'Bearer ' + SUPABASE_KEY
+  }
+})
+.then(function(res) {
+  if (!res.ok) throw new Error('Supabase error');
+  return res.json();
+})
+.then(function(supabasePosts) {
+  // Merge: data.js posts first (they have static HTML files), then Supabase-only posts
+  var merged = [];
+  var seenWeeks = {};
+
+  // Load data.js in background for static posts
+  var script = document.createElement('script');
+  script.src = '../data.js?t=' + Date.now();
+  script.onload = function() {
+    if (typeof SITE_DATA !== 'undefined' && SITE_DATA.posts) {
+      SITE_DATA.posts.forEach(function(p) { seenWeeks[p.week] = true; merged.push(p); });
+    }
+    supabasePosts.forEach(function(p) {
+      if (!seenWeeks[p.week]) merged.push(p);
+    });
+    merged.sort(function(a,b){ return b.week - a.week; });
+    renderBlogList(merged);
+  };
+  script.onerror = function() {
+    // No data.js, just use Supabase posts
+    renderBlogList(supabasePosts);
+  };
+  document.head.appendChild(script);
+})
+.catch(function() {
+  // Supabase failed, fall back to data.js
+  var script = document.createElement('script');
+  script.src = '../data.js?t=' + Date.now();
+  script.onload = function() { loadFromDataJs(); };
+  document.head.appendChild(script);
+});
 </script>
 </body>
 </html>

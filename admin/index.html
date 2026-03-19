@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Dracenstein</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--bg:#080808;--surface:#0f0f0f;--border:#1e1e1e;--accent:#c8a96e;--accent2:#4a9eff;--text:#e8e4dc;--muted:#666;--danger:#cc3333;--success:#33cc66;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Share Tech Mono',monospace;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(200,169,110,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(200,169,110,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+.wrap{position:relative;z-index:1;max-width:720px;margin:0 auto;padding:0 24px;}
+nav{padding:20px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+.logo{font-family:'Cinzel',serif;font-size:20px;font-weight:900;color:var(--accent);letter-spacing:3px;text-decoration:none;}
+.logo span{color:var(--danger);}
+nav a{color:var(--muted);text-decoration:none;font-size:12px;letter-spacing:2px;transition:color .2s;}
+nav a:hover{color:var(--accent);}
+.nav-links{display:flex;gap:28px;}
+.page-header{padding:60px 0 40px;border-bottom:1px solid var(--border);}
+.page-header h1{font-family:'Cinzel',serif;font-size:clamp(28px,5vw,48px);font-weight:900;color:var(--text);margin-bottom:8px;}
+.page-header p{font-size:12px;color:var(--muted);letter-spacing:2px;}
+
+/* Gate */
+#gate{padding:80px 0;text-align:center;}
+#gate input{background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:'Share Tech Mono',monospace;font-size:14px;padding:12px 20px;width:100%;max-width:320px;outline:none;margin-bottom:16px;}
+#gate input:focus{border-color:var(--accent);}
+#gate button{background:transparent;border:1px solid var(--accent);color:var(--accent);font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:2px;padding:10px 32px;cursor:pointer;transition:all .2s;}
+#gate button:hover{background:var(--accent);color:var(--bg);}
+#gate .error{color:var(--danger);font-size:12px;margin-top:12px;display:none;}
+
+/* Admin panels */
+#admin{display:none;padding:40px 0;}
+.form-section{margin-bottom:60px;}
+.form-section h2{font-family:'Cinzel',serif;font-size:20px;font-weight:700;color:var(--accent);margin-bottom:24px;letter-spacing:2px;}
+.form-group{margin-bottom:16px;}
+.form-group label{display:block;font-size:11px;letter-spacing:2px;color:var(--muted);margin-bottom:6px;}
+.form-group input,.form-group textarea{background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:'Share Tech Mono',monospace;font-size:13px;padding:10px 14px;width:100%;outline:none;resize:vertical;}
+.form-group input:focus,.form-group textarea:focus{border-color:var(--accent);}
+.form-group textarea{min-height:160px;line-height:1.6;}
+.form-group small{display:block;margin-top:4px;font-size:10px;color:var(--muted);}
+.submit-btn{background:transparent;border:1px solid var(--accent);color:var(--accent);font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:2px;padding:12px 40px;cursor:pointer;transition:all .2s;margin-top:8px;}
+.submit-btn:hover{background:var(--accent);color:var(--bg);}
+.submit-btn:disabled{opacity:.4;cursor:not-allowed;}
+.msg{font-size:12px;margin-top:12px;padding:8px 12px;display:none;}
+.msg.success{display:block;color:var(--success);border:1px solid rgba(51,204,102,0.3);}
+.msg.error{display:block;color:var(--danger);border:1px solid rgba(204,51,51,0.3);}
+
+footer{border-top:1px solid var(--border);padding:40px 0;display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--muted);}
+footer a{color:var(--muted);text-decoration:none;}
+footer a:hover{color:var(--accent);}
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px);pointer-events:none;z-index:999;}
+@media(max-width:600px){.nav-links{gap:16px;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav>
+    <a href="../index.html" class="logo">DRACEN<span>STEIN</span></a>
+    <div class="nav-links">
+      <a href="../blog/index.html">BLOG</a>
+      <a href="../apps/index.html">APPS</a>
+      <a href="https://github.com/fongtinyan/dracenstein" target="_blank">GITHUB</a>
+    </div>
+  </nav>
+
+  <div class="page-header">
+    <h1>Admin</h1>
+    <p>// content management</p>
+  </div>
+
+  <!-- Password Gate -->
+  <div id="gate">
+    <input type="password" id="pw" placeholder="Enter password" onkeydown="if(event.key==='Enter')checkPw()">
+    <br>
+    <button onclick="checkPw()">AUTHENTICATE</button>
+    <div class="error" id="gate-error">Incorrect password.</div>
+  </div>
+
+  <!-- Admin Panel -->
+  <div id="admin">
+
+    <!-- Add Blog Post -->
+    <div class="form-section">
+      <h2>Add Blog Post</h2>
+      <form id="post-form" onsubmit="return submitPost(event)">
+        <div class="form-group">
+          <label>TITLE</label>
+          <input type="text" id="post-title" required>
+        </div>
+        <div class="form-group">
+          <label>CONTENT</label>
+          <textarea id="post-content" required></textarea>
+          <small>Line breaks will be converted to paragraphs.</small>
+        </div>
+        <div class="form-group">
+          <label>WEEK NUMBER</label>
+          <input type="number" id="post-week" required min="1">
+        </div>
+        <div class="form-group">
+          <label>TAGS</label>
+          <input type="text" id="post-tags" placeholder="AI, THREE.JS, DATABASE">
+          <small>Comma separated.</small>
+        </div>
+        <button type="submit" class="submit-btn" id="post-btn">PUBLISH POST</button>
+        <div class="msg" id="post-msg"></div>
+      </form>
+    </div>
+
+    <!-- Add App -->
+    <div class="form-section">
+      <h2>Add App</h2>
+      <form id="app-form" onsubmit="return submitApp(event)">
+        <div class="form-group">
+          <label>NAME</label>
+          <input type="text" id="app-name" required>
+        </div>
+        <div class="form-group">
+          <label>DESCRIPTION</label>
+          <textarea id="app-desc" required style="min-height:80px;"></textarea>
+        </div>
+        <div class="form-group">
+          <label>WEEK NUMBER</label>
+          <input type="number" id="app-week" required min="1">
+        </div>
+        <div class="form-group">
+          <label>URL</label>
+          <input type="text" id="app-url" required placeholder="https://...">
+        </div>
+        <div class="form-group">
+          <label>TAGS</label>
+          <input type="text" id="app-tags" placeholder="THREE.JS, SUPABASE">
+          <small>Comma separated.</small>
+        </div>
+        <button type="submit" class="submit-btn" id="app-btn">ADD APP</button>
+        <div class="msg" id="app-msg"></div>
+      </form>
+    </div>
+
+  </div>
+
+  <footer>
+    <div>DRACENSTEIN — FONGTINYAN — SYDNEY</div>
+    <div><a href="https://github.com/fongtinyan/dracenstein" target="_blank">github</a> · <a href="https://jamison.com.au" target="_blank">jamison.com.au</a></div>
+  </footer>
+</div>
+
+<script>
+var SUPABASE_URL = 'https://pmvgkmiihqyvgjcdcyjw.supabase.co';
+var SUPABASE_KEY = 'sb_publishable_DEcvBo1uq0dPziHCrUwfTQ_0sq6xkz5';
+var PASSWORD = 'dracenstein2026';
+
+function checkPw() {
+  var pw = document.getElementById('pw').value;
+  if (pw === PASSWORD) {
+    sessionStorage.setItem('dracenstein_auth', '1');
+    showAdmin();
+  } else {
+    document.getElementById('gate-error').style.display = 'block';
+  }
+}
+
+function showAdmin() {
+  document.getElementById('gate').style.display = 'none';
+  document.getElementById('admin').style.display = 'block';
+}
+
+// Auto-login if already authenticated
+if (sessionStorage.getItem('dracenstein_auth') === '1') {
+  showAdmin();
+}
+
+function showMsg(id, text, isError) {
+  var el = document.getElementById(id);
+  el.textContent = text;
+  el.className = 'msg ' + (isError ? 'error' : 'success');
+  setTimeout(function() { el.className = 'msg'; el.style.display = 'none'; }, 5000);
+}
+
+function submitPost(e) {
+  e.preventDefault();
+  var btn = document.getElementById('post-btn');
+  btn.disabled = true;
+  btn.textContent = 'PUBLISHING...';
+
+  var data = {
+    title: document.getElementById('post-title').value.trim(),
+    content: document.getElementById('post-content').value,
+    week: parseInt(document.getElementById('post-week').value),
+    tags: document.getElementById('post-tags').value.trim()
+  };
+
+  fetch(SUPABASE_URL + '/rest/v1/posts', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': SUPABASE_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_KEY,
+      'Prefer': 'return=representation'
+    },
+    body: JSON.stringify(data)
+  })
+  .then(function(res) {
+    if (!res.ok) return res.text().then(function(t) { throw new Error(t); });
+    return res.json();
+  })
+  .then(function() {
+    showMsg('post-msg', 'Post published successfully.', false);
+    document.getElementById('post-form').reset();
+  })
+  .catch(function(err) {
+    showMsg('post-msg', 'Error: ' + err.message, true);
+  })
+  .finally(function() {
+    btn.disabled = false;
+    btn.textContent = 'PUBLISH POST';
+  });
+
+  return false;
+}
+
+function submitApp(e) {
+  e.preventDefault();
+  var btn = document.getElementById('app-btn');
+  btn.disabled = true;
+  btn.textContent = 'ADDING...';
+
+  var data = {
+    name: document.getElementById('app-name').value.trim(),
+    description: document.getElementById('app-desc').value.trim(),
+    week: parseInt(document.getElementById('app-week').value),
+    url: document.getElementById('app-url').value.trim(),
+    tags: document.getElementById('app-tags').value.trim()
+  };
+
+  fetch(SUPABASE_URL + '/rest/v1/apps', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': SUPABASE_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_KEY,
+      'Prefer': 'return=representation'
+    },
+    body: JSON.stringify(data)
+  })
+  .then(function(res) {
+    if (!res.ok) return res.text().then(function(t) { throw new Error(t); });
+    return res.json();
+  })
+  .then(function() {
+    showMsg('app-msg', 'App added successfully.', false);
+    document.getElementById('app-form').reset();
+  })
+  .catch(function(err) {
+    showMsg('app-msg', 'Error: ' + err.message, true);
+  })
+  .finally(function() {
+    btn.disabled = false;
+    btn.textContent = 'ADD APP';
+  });
+
+  return false;
+}
+</script>
+</body>
+</html>

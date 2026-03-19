@@ -6,7 +6,8 @@
       "WebFetch(domain:api.cdnjs.com)",
       "Bash(cd:*)",
       "Bash(which npx:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(echo:*)"
     ]
   }
 }

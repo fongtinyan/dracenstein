@@ -63,22 +63,42 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     <div><a href="https://github.com/fongtinyan/dracenstein" target="_blank">github</a> · <a href="https://jamison.com.au" target="_blank">jamison.com.au</a></div>
   </footer>
 </div>
-<script>document.write('<script src="../data.js?t='+Date.now()+'"><\/script>');</script>
 <script>
-(function(){
-  var apps = SITE_DATA.apps;
+var SUPABASE_URL = 'https://pmvgkmiihqyvgjcdcyjw.supabase.co';
+var SUPABASE_KEY = 'sb_publishable_DEcvBo1uq0dPziHCrUwfTQ_0sq6xkz5';
+
+function renderApps(apps) {
   var count = apps.length;
   document.getElementById('app-count').textContent = '// ' + count + ' experiment' + (count === 1 ? '' : 's') + ' so far';
   var grid = document.getElementById('apps-grid');
+  grid.innerHTML = '';
   apps.forEach(function(app){
     var a = document.createElement('a');
-    a.href = app.id + '/index.html';
+    // data.js apps have id field for local folder; Supabase apps have url field
+    if (app.id && !app.url) {
+      a.href = app.id + '/index.html';
+    } else if (app.url) {
+      a.href = app.url;
+    } else {
+      a.href = '#';
+    }
     a.className = 'app-card';
+
+    // Tags — handle both array (data.js) and comma-separated string (Supabase)
+    var tags = [];
+    if (Array.isArray(app.tags)) {
+      tags = app.tags;
+    } else if (typeof app.tags === 'string' && app.tags.trim()) {
+      tags = app.tags.split(',').map(function(t){ return t.trim().toUpperCase(); });
+    }
+
+    var desc = app.desc || app.description || '';
+
     a.innerHTML =
       '<div class="app-week">WEEK ' + String(app.week).padStart(3,'0') + '</div>' +
-      '<div class="app-name">' + app.name + '</div>' +
-      '<div class="app-desc">' + app.desc + '</div>' +
-      app.tags.map(function(t){ return '<div class="app-tag">' + t + '</div>'; }).join(' ') +
+      '<div class="app-name">' + (app.name || '') + '</div>' +
+      '<div class="app-desc">' + desc + '</div>' +
+      tags.map(function(t){ return '<div class="app-tag">' + t + '</div>'; }).join(' ') +
       '<div class="app-arrow">\u2197</div>';
     grid.appendChild(a);
   });
@@ -93,7 +113,56 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     '<div class="app-desc">Something is brewing in the lab.</div>' +
     '<div class="app-tag">COMING</div>';
   grid.appendChild(ph);
-})();
+}
+
+function loadAppsFromDataJs() {
+  if (typeof SITE_DATA !== 'undefined' && SITE_DATA.apps) {
+    renderApps(SITE_DATA.apps);
+    return true;
+  }
+  return false;
+}
+
+// Try Supabase first, fall back to data.js
+fetch(SUPABASE_URL + '/rest/v1/apps?select=id,name,description,week,url,tags,created_at&order=week.desc', {
+  headers: {
+    'apikey': SUPABASE_KEY,
+    'Authorization': 'Bearer ' + SUPABASE_KEY
+  }
+})
+.then(function(res) {
+  if (!res.ok) throw new Error('Supabase error');
+  return res.json();
+})
+.then(function(supabaseApps) {
+  // Merge: data.js apps (with local folders) + Supabase-only apps
+  var merged = [];
+  var seenWeeks = {};
+
+  var script = document.createElement('script');
+  script.src = '../data.js?t=' + Date.now();
+  script.onload = function() {
+    if (typeof SITE_DATA !== 'undefined' && SITE_DATA.apps) {
+      SITE_DATA.apps.forEach(function(a) { seenWeeks[a.week] = true; merged.push(a); });
+    }
+    supabaseApps.forEach(function(a) {
+      if (!seenWeeks[a.week]) merged.push(a);
+    });
+    merged.sort(function(a,b){ return b.week - a.week; });
+    renderApps(merged);
+  };
+  script.onerror = function() {
+    renderApps(supabaseApps);
+  };
+  document.head.appendChild(script);
+})
+.catch(function() {
+  // Supabase failed, fall back to data.js
+  var script = document.createElement('script');
+  script.src = '../data.js?t=' + Date.now();
+  script.onload = function() { loadAppsFromDataJs(); };
+  document.head.appendChild(script);
+});
 </script>
 </body>
 </html>
