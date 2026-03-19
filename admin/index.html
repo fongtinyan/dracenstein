@@ -86,18 +86,19 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
       <form id="post-form">
         <div class="form-group"><label>TITLE</label><input type="text" id="post-title"></div>
         <div class="form-group">
-          <label>IMAGES</label>
+          <label>HEADER IMAGE</label>
           <div class="upload-zone" id="drop-zone">
-            <p>Drop images here or click to browse</p>
-            <input type="file" id="file-input" accept="image/*" multiple>
+            <p>Drop image here or click to browse</p>
+            <input type="file" id="file-input" accept="image/*">
           </div>
           <div class="upload-preview" id="upload-preview"></div>
+          <input type="hidden" id="post-image-url">
           <div class="msg hidden" id="upload-msg"></div>
         </div>
         <div class="form-group">
           <label>CONTENT</label>
           <textarea id="post-content"></textarea>
-          <small>Line breaks = paragraphs. Use ![caption](url) for images. Upload above to get URLs.</small>
+          <small>Line breaks will be converted to paragraphs.</small>
         </div>
         <div class="form-group"><label>WEEK NUMBER</label><input type="number" id="post-week" min="1"></div>
         <div class="form-group"><label>TAGS</label><input type="text" id="post-tags" placeholder="AI, THREE.JS, DATABASE"><small>Comma separated.</small></div>
@@ -186,30 +187,17 @@ function uploadImage(file) {
 }
 
 function handleFiles(files) {
-  for (var i = 0; i < files.length; i++) {
-    (function(file) {
-      showMsg('upload-msg', 'Uploading ' + file.name + '...', false);
-      uploadImage(file).then(function(publicUrl) {
-        // Show preview
-        var preview = document.getElementById('upload-preview');
-        var img = document.createElement('img');
-        img.src = publicUrl;
-        preview.appendChild(img);
-
-        // Insert markdown at cursor in content textarea
-        var ta = document.getElementById('post-content');
-        var tag = '\n![' + file.name.replace(/\.[^.]+$/, '') + '](' + publicUrl + ')\n';
-        var start = ta.selectionStart;
-        ta.value = ta.value.substring(0, start) + tag + ta.value.substring(ta.selectionEnd);
-        ta.selectionStart = ta.selectionEnd = start + tag.length;
-        ta.focus();
-
-        showMsg('upload-msg', 'Uploaded ' + file.name, false);
-      }, function(err) {
-        showMsg('upload-msg', 'Failed: ' + err, true);
-      });
-    })(files[i]);
-  }
+  var file = files[0];
+  if (!file) return;
+  showMsg('upload-msg', 'Uploading ' + file.name + '...', false);
+  uploadImage(file).then(function(publicUrl) {
+    document.getElementById('post-image-url').value = publicUrl;
+    var preview = document.getElementById('upload-preview');
+    preview.innerHTML = '<img src="' + publicUrl + '">';
+    showMsg('upload-msg', 'Uploaded', false);
+  }, function(err) {
+    showMsg('upload-msg', 'Failed: ' + err, true);
+  });
 }
 
 // Drop zone
@@ -227,20 +215,6 @@ dropZone.addEventListener('drop', function(e) {
   if (e.dataTransfer.files.length) handleFiles(e.dataTransfer.files);
 });
 
-// Also support paste into content textarea
-document.getElementById('post-content').addEventListener('paste', function(e) {
-  var items = e.clipboardData && e.clipboardData.items;
-  if (!items) return;
-  for (var i = 0; i < items.length; i++) {
-    if (items[i].type.indexOf('image') !== -1) {
-      e.preventDefault();
-      var file = items[i].getAsFile();
-      handleFiles([file]);
-      break;
-    }
-  }
-});
-
 // --- Post Submit ---
 document.getElementById('post-btn').addEventListener('click', function() {
   var btn = document.getElementById('post-btn');
@@ -248,17 +222,22 @@ document.getElementById('post-btn').addEventListener('click', function() {
   btn.disabled = true;
   btn.textContent = 'PUBLISHING...';
 
-  supabaseInsert('posts', {
+  var payload = {
     title: document.getElementById('post-title').value.trim(),
     content: document.getElementById('post-content').value,
     week: parseInt(document.getElementById('post-week').value) || 0,
     tags: document.getElementById('post-tags').value.trim()
-  }).then(function() {
+  };
+  var imgUrl = document.getElementById('post-image-url').value;
+  if (imgUrl) payload.image_url = imgUrl;
+
+  supabaseInsert('posts', payload).then(function() {
     showMsg('post-msg', 'Post published successfully.', false);
     document.getElementById('post-title').value = '';
     document.getElementById('post-content').value = '';
     document.getElementById('post-week').value = '';
     document.getElementById('post-tags').value = '';
+    document.getElementById('post-image-url').value = '';
     document.getElementById('upload-preview').innerHTML = '';
     btn.disabled = false;
     btn.textContent = 'PUBLISH POST';
