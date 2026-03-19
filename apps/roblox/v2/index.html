@@ -94,7 +94,7 @@ function saveScore(name,time_seconds){
       'Authorization':'Bearer '+SUPABASE_KEY,
       'Prefer':'return=minimal'
     },
-    body:JSON.stringify({username:name,time_seconds:time_seconds})
+    body:JSON.stringify({player_name:name,time_seconds:time_seconds})
   }).then(function(r){
     if(r.ok) statusEl.textContent='Score saved!';
     else r.text().then(function(t){ statusEl.textContent='Save failed: '+t; });
