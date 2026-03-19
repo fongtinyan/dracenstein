@@ -203,15 +203,12 @@ function submitPost(e) {
       'Content-Type': 'application/json',
       'apikey': SUPABASE_KEY,
       'Authorization': 'Bearer ' + SUPABASE_KEY,
-      'Prefer': 'return=representation'
+      'Prefer': 'return=minimal'
     },
     body: JSON.stringify(data)
   })
   .then(function(res) {
-    if (!res.ok) return res.text().then(function(t) { throw new Error(t); });
-    return res.json();
-  })
-  .then(function() {
+    if (!res.ok) return res.text().then(function(t) { throw new Error(res.status + ': ' + t); });
     showMsg('post-msg', 'Post published successfully.', false);
     document.getElementById('post-form').reset();
   })
@@ -246,15 +243,12 @@ function submitApp(e) {
       'Content-Type': 'application/json',
       'apikey': SUPABASE_KEY,
       'Authorization': 'Bearer ' + SUPABASE_KEY,
-      'Prefer': 'return=representation'
+      'Prefer': 'return=minimal'
     },
     body: JSON.stringify(data)
   })
   .then(function(res) {
-    if (!res.ok) return res.text().then(function(t) { throw new Error(t); });
-    return res.json();
-  })
-  .then(function() {
+    if (!res.ok) return res.text().then(function(t) { throw new Error(res.status + ': ' + t); });
     showMsg('app-msg', 'App added successfully.', false);
     document.getElementById('app-form').reset();
   })
