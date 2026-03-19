@@ -44,6 +44,15 @@ nav a:hover{color:var(--accent);}
 .msg.success{color:var(--success);border:1px solid rgba(51,204,102,0.3);}
 .msg.error{color:var(--danger);border:1px solid rgba(204,51,51,0.3);}
 .msg.hidden{display:none;}
+.upload-zone{border:2px dashed var(--border);padding:24px;text-align:center;cursor:pointer;transition:border-color .2s;margin-bottom:8px;}
+.upload-zone:hover,.upload-zone.dragover{border-color:var(--accent);}
+.upload-zone p{color:var(--muted);font-size:12px;letter-spacing:1px;}
+.upload-zone input{display:none;}
+.upload-preview{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+.upload-preview img{height:60px;border:1px solid var(--border);border-radius:2px;}
+.img-btn{background:transparent;border:1px solid var(--accent2);color:var(--accent2);font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:1px;padding:8px 20px;cursor:pointer;transition:all .2s;margin-top:4px;}
+.img-btn:hover{background:var(--accent2);color:var(--bg);}
+.img-btn:disabled{opacity:.4;cursor:not-allowed;}
 footer{border-top:1px solid var(--border);padding:40px 0;display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--muted);}
 footer a{color:var(--muted);text-decoration:none;}
 footer a:hover{color:var(--accent);}
@@ -75,9 +84,22 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     <div class="form-section">
       <h2>Add Blog Post</h2>
       <form id="post-form">
-        <div class="form-group"><label>TITLE</label><input type="text" id="post-title" required></div>
-        <div class="form-group"><label>CONTENT</label><textarea id="post-content" required></textarea><small>Line breaks will be converted to paragraphs.</small></div>
-        <div class="form-group"><label>WEEK NUMBER</label><input type="number" id="post-week" required min="1"></div>
+        <div class="form-group"><label>TITLE</label><input type="text" id="post-title"></div>
+        <div class="form-group">
+          <label>IMAGES</label>
+          <div class="upload-zone" id="drop-zone">
+            <p>Drop images here or click to browse</p>
+            <input type="file" id="file-input" accept="image/*" multiple>
+          </div>
+          <div class="upload-preview" id="upload-preview"></div>
+          <div class="msg hidden" id="upload-msg"></div>
+        </div>
+        <div class="form-group">
+          <label>CONTENT</label>
+          <textarea id="post-content"></textarea>
+          <small>Line breaks = paragraphs. Use ![caption](url) for images. Upload above to get URLs.</small>
+        </div>
+        <div class="form-group"><label>WEEK NUMBER</label><input type="number" id="post-week" min="1"></div>
         <div class="form-group"><label>TAGS</label><input type="text" id="post-tags" placeholder="AI, THREE.JS, DATABASE"><small>Comma separated.</small></div>
         <button type="button" class="submit-btn" id="post-btn">PUBLISH POST</button>
         <div class="msg hidden" id="post-msg"></div>
@@ -86,10 +108,10 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     <div class="form-section">
       <h2>Add App</h2>
       <form id="app-form">
-        <div class="form-group"><label>NAME</label><input type="text" id="app-name" required></div>
-        <div class="form-group"><label>DESCRIPTION</label><textarea id="app-desc" required style="min-height:80px;"></textarea></div>
-        <div class="form-group"><label>WEEK NUMBER</label><input type="number" id="app-week" required min="1"></div>
-        <div class="form-group"><label>URL</label><input type="text" id="app-url" required placeholder="https://..."></div>
+        <div class="form-group"><label>NAME</label><input type="text" id="app-name"></div>
+        <div class="form-group"><label>DESCRIPTION</label><textarea id="app-desc" style="min-height:80px;"></textarea></div>
+        <div class="form-group"><label>WEEK NUMBER</label><input type="number" id="app-week" min="1"></div>
+        <div class="form-group"><label>URL</label><input type="text" id="app-url" placeholder="https://..."></div>
         <div class="form-group"><label>TAGS</label><input type="text" id="app-tags" placeholder="THREE.JS, SUPABASE"><small>Comma separated.</small></div>
         <button type="button" class="submit-btn" id="app-btn">ADD APP</button>
         <div class="msg hidden" id="app-msg"></div>
@@ -104,11 +126,11 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 <script>
 var SUPABASE_URL = 'https://pmvgkmiihqyvgjcdcyjw.supabase.co';
 var SUPABASE_KEY = 'sb_publishable_DEcvBo1uq0dPziHCrUwfTQ_0sq6xkz5';
+var STORAGE_BUCKET = 'images';
 var PASSWORD = 'dracenstein2026';
 
 function checkPw() {
-  var pw = document.getElementById('pw').value;
-  if (pw === PASSWORD) {
+  if (document.getElementById('pw').value === PASSWORD) {
     sessionStorage.setItem('dracenstein_auth', '1');
     showAdmin();
   } else {
@@ -143,27 +165,101 @@ function supabaseInsert(table, data) {
   });
 }
 
+// --- Image Upload ---
+function uploadImage(file) {
+  var ext = file.name.split('.').pop().toLowerCase();
+  var filename = Date.now() + '_' + Math.random().toString(36).substring(2, 8) + '.' + ext;
+  var path = filename;
+
+  return fetch(SUPABASE_URL + '/storage/v1/object/' + STORAGE_BUCKET + '/' + path, {
+    method: 'POST',
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_KEY,
+      'Content-Type': file.type
+    },
+    body: file
+  }).then(function(res) {
+    if (!res.ok) return res.text().then(function(t) { return Promise.reject('Upload failed: ' + t); });
+    return SUPABASE_URL + '/storage/v1/object/public/' + STORAGE_BUCKET + '/' + path;
+  });
+}
+
+function handleFiles(files) {
+  for (var i = 0; i < files.length; i++) {
+    (function(file) {
+      showMsg('upload-msg', 'Uploading ' + file.name + '...', false);
+      uploadImage(file).then(function(publicUrl) {
+        // Show preview
+        var preview = document.getElementById('upload-preview');
+        var img = document.createElement('img');
+        img.src = publicUrl;
+        preview.appendChild(img);
+
+        // Insert markdown at cursor in content textarea
+        var ta = document.getElementById('post-content');
+        var tag = '\n![' + file.name.replace(/\.[^.]+$/, '') + '](' + publicUrl + ')\n';
+        var start = ta.selectionStart;
+        ta.value = ta.value.substring(0, start) + tag + ta.value.substring(ta.selectionEnd);
+        ta.selectionStart = ta.selectionEnd = start + tag.length;
+        ta.focus();
+
+        showMsg('upload-msg', 'Uploaded ' + file.name, false);
+      }, function(err) {
+        showMsg('upload-msg', 'Failed: ' + err, true);
+      });
+    })(files[i]);
+  }
+}
+
+// Drop zone
+var dropZone = document.getElementById('drop-zone');
+var fileInput = document.getElementById('file-input');
+
+dropZone.addEventListener('click', function() { fileInput.click(); });
+fileInput.addEventListener('change', function() { if (this.files.length) handleFiles(this.files); this.value = ''; });
+
+dropZone.addEventListener('dragover', function(e) { e.preventDefault(); this.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', function() { this.classList.remove('dragover'); });
+dropZone.addEventListener('drop', function(e) {
+  e.preventDefault();
+  this.classList.remove('dragover');
+  if (e.dataTransfer.files.length) handleFiles(e.dataTransfer.files);
+});
+
+// Also support paste into content textarea
+document.getElementById('post-content').addEventListener('paste', function(e) {
+  var items = e.clipboardData && e.clipboardData.items;
+  if (!items) return;
+  for (var i = 0; i < items.length; i++) {
+    if (items[i].type.indexOf('image') !== -1) {
+      e.preventDefault();
+      var file = items[i].getAsFile();
+      handleFiles([file]);
+      break;
+    }
+  }
+});
+
+// --- Post Submit ---
 document.getElementById('post-btn').addEventListener('click', function() {
   var btn = document.getElementById('post-btn');
   if (!document.getElementById('post-title').value.trim()) { alert('Title required'); return; }
   btn.disabled = true;
   btn.textContent = 'PUBLISHING...';
 
-  var payload = {
+  supabaseInsert('posts', {
     title: document.getElementById('post-title').value.trim(),
     content: document.getElementById('post-content').value,
-    week: parseInt(document.getElementById('post-week').value),
+    week: parseInt(document.getElementById('post-week').value) || 0,
     tags: document.getElementById('post-tags').value.trim()
-  };
-
-  showMsg('post-msg', 'Sending: ' + JSON.stringify(payload), false);
-
-  supabaseInsert('posts', payload).then(function() {
+  }).then(function() {
     showMsg('post-msg', 'Post published successfully.', false);
     document.getElementById('post-title').value = '';
     document.getElementById('post-content').value = '';
     document.getElementById('post-week').value = '';
     document.getElementById('post-tags').value = '';
+    document.getElementById('upload-preview').innerHTML = '';
     btn.disabled = false;
     btn.textContent = 'PUBLISH POST';
   }, function(err) {
@@ -173,21 +269,20 @@ document.getElementById('post-btn').addEventListener('click', function() {
   });
 });
 
+// --- App Submit ---
 document.getElementById('app-btn').addEventListener('click', function() {
   var btn = document.getElementById('app-btn');
   if (!document.getElementById('app-name').value.trim()) { alert('Name required'); return; }
   btn.disabled = true;
   btn.textContent = 'ADDING...';
 
-  var payload = {
+  supabaseInsert('apps', {
     name: document.getElementById('app-name').value.trim(),
     description: document.getElementById('app-desc').value.trim(),
-    week: parseInt(document.getElementById('app-week').value),
+    week: parseInt(document.getElementById('app-week').value) || 0,
     url: document.getElementById('app-url').value.trim(),
     tags: document.getElementById('app-tags').value.trim()
-  };
-
-  supabaseInsert('apps', payload).then(function() {
+  }).then(function() {
     showMsg('app-msg', 'App added successfully.', false);
     document.getElementById('app-name').value = '';
     document.getElementById('app-desc').value = '';

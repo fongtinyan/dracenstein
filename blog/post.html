@@ -34,6 +34,8 @@ nav a:hover{color:var(--accent);}
 .post-body em{color:var(--accent2);}
 .post-body code{font-family:'Share Tech Mono',monospace;font-size:14px;color:var(--accent);background:var(--surface);padding:2px 8px;border:1px solid var(--border);}
 .callout{background:var(--surface);border-left:3px solid var(--accent);padding:20px 24px;margin:32px 0;font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--text);line-height:1.7;}
+.post-body img{max-width:100%;height:auto;border:1px solid var(--border);margin:24px 0;display:block;}
+.post-body .img-caption{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:1px;margin:-16px 0 24px;}
 
 .post-footer{border-top:1px solid var(--border);padding:40px 0;display:flex;justify-content:space-between;align-items:center;}
 .post-footer a{color:var(--muted);text-decoration:none;font-size:12px;letter-spacing:1px;}
@@ -126,12 +128,22 @@ var sb = window.supabase.createClient('https://pmvgkmiihqyvgjcdcyjw.supabase.co'
     // Show header
     document.getElementById('post-header').style.display = 'block';
 
-    // Content — convert line breaks to paragraphs
+    // Content — convert line breaks to paragraphs, ![caption](url) to images
     var content = post.content || '';
     var paragraphs = content.split(/\n\s*\n/);
     var html = paragraphs.map(function(p) {
       p = p.trim();
       if (!p) return '';
+      // Check if this paragraph is just an image
+      var imgMatch = p.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
+      if (imgMatch) {
+        var cap = imgMatch[1], url = imgMatch[2];
+        return '<img src="' + url + '" alt="' + cap + '">' + (cap ? '<div class="img-caption">' + cap + '</div>' : '');
+      }
+      // Inline images within text
+      p = p.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, function(m, cap, url) {
+        return '</p><img src="' + url + '" alt="' + cap + '">' + (cap ? '<div class="img-caption">' + cap + '</div>' : '') + '<p>';
+      });
       // Single line breaks become <br>
       p = p.replace(/\n/g, '<br>');
       return '<p>' + p + '</p>';
