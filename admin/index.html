@@ -152,6 +152,11 @@ var SUPABASE_URL = 'https://pmvgkmiihqyvgjcdcyjw.supabase.co';
 var SUPABASE_KEY = 'sb_publishable_DEcvBo1uq0dPziHCrUwfTQ_0sq6xkz5';
 var PASSWORD = 'dracenstein2026';
 
+// Warn if opened from file://
+if(location.protocol === 'file:'){
+  alert('CMS requires HTTP. Run: npx serve (from project root) then open http://localhost:3000/admin/index.html');
+}
+
 function checkPw() {
   var pw = document.getElementById('pw').value;
   if (pw === PASSWORD) {
