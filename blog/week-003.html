@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 003 — The game talks to a database now | Dracenstein</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Share+Tech+Mono&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#080808;--surface:#0f0f0f;--border:#1e1e1e;
+  --accent:#c8a96e;--accent2:#4a9eff;--text:#e8e4dc;--muted:#666;--danger:#cc3333;
+}
+body{background:var(--bg);color:var(--text);font-family:'Share Tech Mono',monospace;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(200,169,110,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(200,169,110,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+.wrap{position:relative;z-index:1;max-width:720px;margin:0 auto;padding:0 24px;}
+nav{padding:20px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+.logo{font-family:'Cinzel',serif;font-size:20px;font-weight:900;color:var(--accent);letter-spacing:3px;text-decoration:none;}
+.logo span{color:var(--danger);}
+nav a{color:var(--muted);text-decoration:none;font-size:12px;letter-spacing:2px;transition:color .2s;}
+nav a:hover{color:var(--accent);}
+
+.post-header{padding:60px 0 40px;border-bottom:1px solid var(--border);}
+.post-meta{font-size:11px;color:var(--muted);letter-spacing:3px;margin-bottom:20px;}
+.post-meta span{color:var(--accent);}
+.post-title{font-family:'Cinzel',serif;font-size:clamp(28px,5vw,48px);font-weight:900;line-height:1.1;margin-bottom:20px;}
+.post-sub{font-size:13px;color:var(--muted);line-height:1.8;}
+
+.post-body{padding:48px 0;font-family:'Lora',serif;font-size:17px;line-height:1.9;color:#ccc8c0;}
+.post-body p{margin-bottom:24px;}
+.post-body h2{font-family:'Cinzel',serif;font-size:16px;letter-spacing:3px;color:var(--accent);margin:48px 0 16px;font-weight:700;}
+.post-body strong{color:var(--text);font-weight:600;}
+.post-body em{color:var(--accent2);}
+.post-body code{font-family:'Share Tech Mono',monospace;font-size:14px;color:var(--accent);background:var(--surface);padding:2px 8px;border:1px solid var(--border);}
+.callout{background:var(--surface);border-left:3px solid var(--accent);padding:20px 24px;margin:32px 0;font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--text);line-height:1.7;}
+.post-body ul{margin:0 0 24px 24px;list-style:none;}
+.post-body ul li{position:relative;padding-left:16px;margin-bottom:8px;}
+.post-body ul li::before{content:'→';position:absolute;left:0;color:var(--accent);}
+
+.post-footer{border-top:1px solid var(--border);padding:40px 0;display:flex;justify-content:space-between;align-items:center;}
+.post-footer a{color:var(--muted);text-decoration:none;font-size:12px;letter-spacing:1px;}
+.post-footer a:hover{color:var(--accent);}
+footer{border-top:1px solid var(--border);padding:40px 0;display:flex;justify-content:space-between;font-size:11px;color:var(--muted);}
+footer a{color:var(--muted);text-decoration:none;}
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px);pointer-events:none;z-index:999;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav>
+    <a href="../index.html" class="logo">DRACEN<span>STEIN</span></a>
+    <a href="index.html">← BACK</a>
+  </nav>
+
+  <div class="post-header">
+    <div class="post-meta">WEEK <span>003</span> · MARCH 2026 · SYDNEY</div>
+    <h1 class="post-title">The game talks to a database now</h1>
+    <p class="post-sub">Browser game → Supabase → leaderboard. The whole stack is working.</p>
+  </div>
+
+  <div class="post-body">
+    <p>Last week we had a 3D game running in a browser. This week it saves your score to a real database and there's a live leaderboard anyone can see.</p>
+
+    <h2>// what happened</h2>
+
+    <p>We connected the Roblox clone to <strong>Supabase</strong>. When you collect all 8 coins, your username and time get posted to a <code>scores</code> table via the REST API. One fetch call. That's it.</p>
+
+    <p>Then we built a leaderboard page that reads the top 10 scores ordered by fastest time. Gold, silver, bronze highlights for the top 3. It pulls live from the database every time you load it.</p>
+
+    <div class="callout">
+      Browser game → Supabase POST → scores table → leaderboard GET → rendered.<br>
+      The whole round trip. No backend server. No deploy pipeline. Just static HTML and a database.
+    </div>
+
+    <p>The thing that hits different is how <em>little code</em> this took. The Supabase REST API is just fetch with the right headers. No SDK, no npm install, no build step. A single HTML file talks directly to a Postgres database.</p>
+
+    <h2>// dracenstein studio</h2>
+
+    <p>Also this week — we started planning out something bigger. <strong>Dracenstein Studio</strong> — a full asset creation pipeline for building game-ready content from text prompts.</p>
+
+    <p>The vision is four studios working together:</p>
+
+    <ul>
+      <li><strong>Character Studio</strong> — generate a complete game character from a text prompt. 3D model, animations, voice, AI personality. One prompt, one character.</li>
+      <li><strong>Object Studio</strong> — props, weapons, items, furniture. Anything a character can interact with.</li>
+      <li><strong>Environment Studio</strong> — terrain, buildings, skyboxes, lighting. Whole worlds from a description.</li>
+      <li><strong>Game Studio</strong> — ties it all together. Rules, levels, mechanics, win conditions.</li>
+    </ul>
+
+    <p>The endgame: type <em>"a medieval blacksmith who speaks with a Scottish accent and gets nervous around horses"</em> and get back a rigged 3D model with idle animations, a voice pack, dialogue trees, and an AI behaviour system. Ready to drop into a game.</p>
+
+    <div class="callout">
+      We're not there yet. Not even close. But the direction is clear —<br>
+      collapse the gap between describing something and having it exist.
+    </div>
+
+    <p>Week 2 was proving the game works. Week 3 was proving the stack works. Week 4 and beyond — we start building the tools that build the things.</p>
+
+    <p>See you next week.</p>
+  </div>
+
+  <div class="post-footer">
+    <a href="../index.html">← HOME</a>
+    <a href="../apps/roblox/leaderboard.html">VIEW LEADERBOARD →</a>
+  </div>
+
+  <footer>
+    <div>DRACENSTEIN · 2026</div>
+    <a href="../index.html">dracenstein.com</a>
+  </footer>
+</div>
+</body>
+</html>

@@ -19,6 +19,13 @@ var SITE_DATA = {
       date: '2026-03',
       week: 2,
       tags: ['THREE.JS', 'AI']
+    },
+    {
+      title: 'The game talks to a database now',
+      file: 'blog/week-003.html',
+      date: '2026-03',
+      week: 3,
+      tags: ['SUPABASE', 'DATABASE', 'LEADERBOARD']
     }
   ]
 };
