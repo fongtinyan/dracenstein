@@ -61,7 +61,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     <div><a href="https://github.com/fongtinyan/dracenstein" target="_blank">github</a> · <a href="https://jamison.com.au" target="_blank">jamison.com.au</a></div>
   </footer>
 </div>
-<script src="../data.js"></script>
+<script>document.write('<script src="../data.js?t='+Date.now()+'"><\/script>');</script>
 <script>
 (function(){
   if(typeof SITE_DATA === 'undefined') return;
