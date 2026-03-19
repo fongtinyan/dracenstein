@@ -143,48 +143,63 @@ function supabaseInsert(table, data) {
   });
 }
 
-document.getElementById('post-form').addEventListener('submit', function(e) {
+document.getElementById('post-btn').addEventListener('click', function(e) {
   e.preventDefault();
-  var btn = document.getElementById('post-btn');
+  var form = document.getElementById('post-form');
+  if (!form.checkValidity()) { form.reportValidity(); return; }
+  var btn = this;
   btn.disabled = true;
   btn.textContent = 'PUBLISHING...';
-  showMsg('post-msg', 'Sending...', false);
 
-  supabaseInsert('posts', {
+  var payload = {
     title: document.getElementById('post-title').value.trim(),
     content: document.getElementById('post-content').value,
     week: parseInt(document.getElementById('post-week').value),
     tags: document.getElementById('post-tags').value.trim()
-  }).then(function() {
+  };
+
+  supabaseInsert('posts', payload).then(function() {
     showMsg('post-msg', 'Post published successfully.', false);
-    document.getElementById('post-form').reset();
+    document.getElementById('post-title').value = '';
+    document.getElementById('post-content').value = '';
+    document.getElementById('post-week').value = '';
+    document.getElementById('post-tags').value = '';
+    btn.disabled = false;
+    btn.textContent = 'PUBLISH POST';
   }, function(err) {
     showMsg('post-msg', 'Error: ' + err, true);
-  }).then(function() {
     btn.disabled = false;
     btn.textContent = 'PUBLISH POST';
   });
 });
 
-document.getElementById('app-form').addEventListener('submit', function(e) {
+document.getElementById('app-btn').addEventListener('click', function(e) {
   e.preventDefault();
-  var btn = document.getElementById('app-btn');
+  var form = document.getElementById('app-form');
+  if (!form.checkValidity()) { form.reportValidity(); return; }
+  var btn = this;
   btn.disabled = true;
   btn.textContent = 'ADDING...';
-  showMsg('app-msg', 'Sending...', false);
 
-  supabaseInsert('apps', {
+  var payload = {
     name: document.getElementById('app-name').value.trim(),
     description: document.getElementById('app-desc').value.trim(),
     week: parseInt(document.getElementById('app-week').value),
     url: document.getElementById('app-url').value.trim(),
     tags: document.getElementById('app-tags').value.trim()
-  }).then(function() {
+  };
+
+  supabaseInsert('apps', payload).then(function() {
     showMsg('app-msg', 'App added successfully.', false);
-    document.getElementById('app-form').reset();
+    document.getElementById('app-name').value = '';
+    document.getElementById('app-desc').value = '';
+    document.getElementById('app-week').value = '';
+    document.getElementById('app-url').value = '';
+    document.getElementById('app-tags').value = '';
+    btn.disabled = false;
+    btn.textContent = 'ADD APP';
   }, function(err) {
     showMsg('app-msg', 'Error: ' + err, true);
-  }).then(function() {
     btn.disabled = false;
     btn.textContent = 'ADD APP';
   });
