@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Roblox Clone v2 — Dracenstein</title>
+<title>Roblox Clone v1 — Dracenstein</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:#1a1a2e;overflow:hidden;font-family:Arial,sans-serif;}
@@ -21,9 +21,6 @@ body{background:#1a1a2e;overflow:hidden;font-family:Arial,sans-serif;}
 #uname{background:#222;color:#fff;border:1px solid #444;border-radius:6px;padding:4px 8px;font-size:13px;width:140px;}
 #playbtn{background:#00b06b;color:#fff;border:none;border-radius:8px;padding:12px 36px;font-size:16px;font-weight:bold;cursor:pointer;}
 #playbtn:hover{background:#00cc7a;}
-.menu-links{margin-top:16px;display:flex;gap:16px;}
-.menu-links a{color:#aaa;font-size:12px;text-decoration:none;letter-spacing:1px;}
-.menu-links a:hover{color:#fff;}
 canvas{display:block;position:absolute;inset:0;width:100%;height:100%;}
 #hud{display:none;position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;}
 #hud-tl{position:absolute;top:10px;left:44px;color:#fff;font:bold 14px Arial;text-shadow:0 1px 4px #000;}
@@ -33,10 +30,7 @@ canvas{display:block;position:absolute;inset:0;width:100%;height:100%;}
 #chat-box{position:absolute;bottom:12px;right:12px;color:#fff;font:11px Arial;background:rgba(0,0,0,.5);padding:4px 10px;border-radius:8px;}
 #wn{display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.9);color:#fff;font-family:Arial;padding:28px 40px;border-radius:12px;text-align:center;z-index:20;}
 #wn h2{font-size:26px;font-weight:bold;color:#ffee00;margin-bottom:8px;}
-#wn .save-status{font-size:12px;color:#aaa;margin-top:6px;}
 #againbtn{background:#00b06b;color:#fff;border:none;border-radius:8px;padding:10px 28px;font-size:14px;font-weight:bold;cursor:pointer;margin-top:12px;}
-#lbbtn{background:transparent;color:#4a9eff;border:1px solid #4a9eff;border-radius:8px;padding:8px 20px;font-size:12px;cursor:pointer;margin-top:8px;letter-spacing:1px;}
-#lbbtn:hover{background:rgba(74,158,255,0.15);}
 #viewmode{position:absolute;top:36px;left:44px;color:#fff;font:bold 12px Arial;text-shadow:0 1px 4px #000;opacity:.8;}
 </style>
 </head>
@@ -45,7 +39,7 @@ canvas{display:block;position:absolute;inset:0;width:100%;height:100%;}
 <div id="app">
   <div id="menu">
     <h1>ROBLOX</h1>
-    <p>not affiliated. just vibing.</p>
+    <p>v1 — not affiliated. just vibing.</p>
     <div class="preview-wrap">
       <div id="char-preview"></div>
       <div class="cfg">
@@ -56,9 +50,6 @@ canvas{display:block;position:absolute;inset:0;width:100%;height:100%;}
       </div>
     </div>
     <button id="playbtn">Play</button>
-    <div class="menu-links">
-      <a href="../leaderboard.html">Leaderboard</a>
-    </div>
   </div>
   <canvas id="cv"></canvas>
   <div id="hud">
@@ -72,36 +63,11 @@ canvas{display:block;position:absolute;inset:0;width:100%;height:100%;}
   <div id="wn">
     <h2>YOU WIN!</h2>
     <div id="wt" style="font-size:14px;opacity:.7;"></div>
-    <div id="save-status" class="save-status"></div>
     <button id="againbtn">Play Again</button>
-    <br>
-    <button id="lbbtn">VIEW LEADERBOARD</button>
   </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-var SUPABASE_URL='https://pmvgkmiihqyvgjcdcyjw.supabase.co';
-var SUPABASE_KEY='sb_publishable_DEcvBo1uq0dPziHCrUwfTQ_0sq6xkz5';
-
-function saveScore(name,time_seconds){
-  var statusEl=document.getElementById('save-status');
-  statusEl.textContent='Saving score...';
-  var url=SUPABASE_URL+'/rest/v1/scores';
-  var headers={
-    'Content-Type':'application/json',
-    'apikey':SUPABASE_KEY,
-    'Authorization':'Bearer '+SUPABASE_KEY,
-    'Prefer':'return=minimal'
-  };
-  var body=JSON.stringify({player_name:name,time_seconds:time_seconds});
-  fetch(url,{method:'POST',headers:headers,body:body}).then(function(r){
-    if(r.ok){statusEl.textContent='Score saved!';}
-    else{r.text().then(function(t){statusEl.textContent='Save failed ('+r.status+'): '+t;});}
-  }).catch(function(e){
-    statusEl.textContent='Network error: '+e.message;
-  });
-}
-
 (function(){
 var SHIRT_COLORS=[0xe74c3c,0x3498db,0x2ecc71,0xf39c12,0x9b59b6,0xe91e63,0x00bcd4,0xff5722];
 var chosen=0,username='CoolDude123',animId=null,chatInterval=null,renderer=null;
@@ -142,7 +108,6 @@ document.getElementById('playbtn').onclick=function(){
   document.getElementById('sc').textContent='Coins: 0';
   document.getElementById('tm').textContent='';
   document.getElementById('chat').innerHTML='';
-  document.getElementById('save-status').textContent='';
   if(chatInterval)clearInterval(chatInterval);
   chatInterval=setInterval(addChat,2800);
   runGame();
@@ -150,9 +115,6 @@ document.getElementById('playbtn').onclick=function(){
 document.getElementById('againbtn').onclick=function(){
   if(animId){cancelAnimationFrame(animId);animId=null;}
   document.getElementById('playbtn').onclick();
-};
-document.getElementById('lbbtn').onclick=function(){
-  window.location.href='../leaderboard.html';
 };
 
 function runGame(){
@@ -229,7 +191,6 @@ function runGame(){
   document.addEventListener('mouseup',function(){drag=false;});
   document.addEventListener('mousemove',function(e){if(!drag)return;camYaw-=(e.clientX-lx)*0.003;pitch=Math.max(-0.7,Math.min(0.7,pitch-(e.clientY-ly)*0.003));lx=e.clientX;ly=e.clientY;});
   var startTime=null,finished=false,ptimer=0,gameStartT=performance.now()/1000;
-  var scoreSaved=false;
   var sEl=document.getElementById('sc'),tEl=document.getElementById('tm'),pkEl=document.getElementById('pk');
   var then=performance.now();
   function pickTarget(n){var a=Math.random()*Math.PI*2,d=4+Math.random()*10;n.userData.tx=Math.max(-40,Math.min(40,n.userData.ox+Math.cos(a)*d));n.userData.tz=Math.max(-40,Math.min(40,n.userData.oz+Math.sin(a)*d));n.userData.waitTimer=1+Math.random()*2;}
@@ -259,13 +220,7 @@ function runGame(){
         coin.userData.done=true;coin.visible=false;collected++;
         sEl.textContent='Coins: '+collected+' / '+total;
         pkEl.style.opacity='1';ptimer=1.0;
-        if(collected===total&&!finished){
-          finished=true;
-          var finalTime=parseFloat(((performance.now()-startTime)/1000).toFixed(1));
-          document.getElementById('wt').textContent='Time: '+finalTime+'s';
-          document.getElementById('wn').style.display='block';
-          if(!scoreSaved){scoreSaved=true;saveScore(username,finalTime);}
-        }
+        if(collected===total&&!finished){finished=true;document.getElementById('wt').textContent='Time: '+((performance.now()-startTime)/1000).toFixed(1)+'s';document.getElementById('wn').style.display='block';}
       }
     });
     if(ptimer>0){ptimer-=dt;if(ptimer<=0)pkEl.style.opacity='0';}

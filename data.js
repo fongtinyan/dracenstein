@@ -7,8 +7,8 @@ var SITE_DATA = {
       week: 2,
       tags: ['THREE.JS'],
       versions: [
-        { date: '2026-03-09', note: 'Initial release' },
-        { date: '2026-03-15', note: 'View switcher, reworked controls' }
+        { ver: 'v1', date: '2026-03-09', note: 'Initial release — 3D world, NPCs, coin collection, character customiser', path: 'v1/index.html' },
+        { ver: 'v2', date: '2026-03-15', note: 'View switcher, reworked controls, Supabase scoreboard, leaderboard', path: 'v2/index.html' }
       ]
     }
   ],
