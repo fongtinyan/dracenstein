@@ -5,7 +5,8 @@
       "WebFetch(domain:cdnjs.cloudflare.com)",
       "WebFetch(domain:api.cdnjs.com)",
       "Bash(cd:*)",
-      "Bash(which npx:*)"
+      "Bash(which npx:*)",
+      "Bash(curl:*)"
     ]
   }
 }

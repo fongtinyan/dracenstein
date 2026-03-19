@@ -86,20 +86,19 @@ var SUPABASE_KEY='sb_publishable_DEcvBo1uq0dPziHCrUwfTQ_0sq6xkz5';
 function saveScore(name,time_seconds){
   var statusEl=document.getElementById('save-status');
   statusEl.textContent='Saving score...';
-  fetch(SUPABASE_URL+'/rest/v1/scores',{
-    method:'POST',
-    headers:{
-      'Content-Type':'application/json',
-      'apikey':SUPABASE_KEY,
-      'Authorization':'Bearer '+SUPABASE_KEY,
-      'Prefer':'return=minimal'
-    },
-    body:JSON.stringify({player_name:name,time_seconds:time_seconds})
-  }).then(function(r){
-    if(r.ok) statusEl.textContent='Score saved!';
-    else r.text().then(function(t){ statusEl.textContent='Save failed: '+t; });
+  var url=SUPABASE_URL+'/rest/v1/scores';
+  var headers={
+    'Content-Type':'application/json',
+    'apikey':SUPABASE_KEY,
+    'Authorization':'Bearer '+SUPABASE_KEY,
+    'Prefer':'return=minimal'
+  };
+  var body=JSON.stringify({player_name:name,time_seconds:time_seconds});
+  fetch(url,{method:'POST',headers:headers,body:body}).then(function(r){
+    if(r.ok){statusEl.textContent='Score saved!';}
+    else{r.text().then(function(t){statusEl.textContent='Save failed ('+r.status+'): '+t;});}
   }).catch(function(e){
-    statusEl.textContent='Save failed: '+e.message;
+    statusEl.textContent='Network error: '+e.message;
   });
 }
 
