@@ -53,6 +53,14 @@ nav a:hover{color:var(--accent);}
 .img-btn{background:transparent;border:1px solid var(--accent2);color:var(--accent2);font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:1px;padding:8px 20px;cursor:pointer;transition:all .2s;margin-top:4px;}
 .img-btn:hover{background:var(--accent2);color:var(--bg);}
 .img-btn:disabled{opacity:.4;cursor:not-allowed;}
+.manage-row{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border);}
+.manage-row:last-child{border-bottom:none;}
+.manage-info{flex:1;min-width:0;}
+.manage-title{font-size:13px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.manage-meta{font-size:10px;color:var(--muted);letter-spacing:1px;margin-top:2px;}
+.del-btn{background:transparent;border:1px solid var(--danger);color:var(--danger);font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:1px;padding:4px 12px;cursor:pointer;transition:all .2s;flex-shrink:0;margin-left:12px;}
+.del-btn:hover{background:var(--danger);color:#fff;}
+.manage-empty{padding:20px;text-align:center;color:var(--muted);font-size:12px;}
 footer{border-top:1px solid var(--border);padding:40px 0;display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--muted);}
 footer a{color:var(--muted);text-decoration:none;}
 footer a:hover{color:var(--accent);}
@@ -117,6 +125,16 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
         <button type="button" class="submit-btn" id="app-btn">ADD APP</button>
         <div class="msg hidden" id="app-msg"></div>
       </form>
+    </div>
+    <div class="form-section">
+      <h2>Manage Posts</h2>
+      <div id="posts-list" style="border:1px solid var(--border);"></div>
+      <div class="msg hidden" id="posts-list-msg"></div>
+    </div>
+    <div class="form-section">
+      <h2>Manage Apps</h2>
+      <div id="apps-list" style="border:1px solid var(--border);"></div>
+      <div class="msg hidden" id="apps-list-msg"></div>
     </div>
   </div>
   <footer>
@@ -241,6 +259,7 @@ document.getElementById('post-btn').addEventListener('click', function() {
     document.getElementById('upload-preview').innerHTML = '';
     btn.disabled = false;
     btn.textContent = 'PUBLISH POST';
+    loadPosts();
   }, function(err) {
     showMsg('post-msg', 'FAILED: ' + err, true);
     btn.disabled = false;
@@ -270,12 +289,94 @@ document.getElementById('app-btn').addEventListener('click', function() {
     document.getElementById('app-tags').value = '';
     btn.disabled = false;
     btn.textContent = 'ADD APP';
+    loadApps();
   }, function(err) {
     showMsg('app-msg', 'Error: ' + err, true);
     btn.disabled = false;
     btn.textContent = 'ADD APP';
   });
 });
+
+// --- Manage: Load & Delete ---
+function supabaseDelete(table, id) {
+  return fetch(SUPABASE_URL + '/rest/v1/' + table + '?id=eq.' + id, {
+    method: 'DELETE',
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_KEY
+    }
+  }).then(function(res) {
+    if (!res.ok) return res.text().then(function(t) { return Promise.reject(res.status + ': ' + t); });
+    return 'ok';
+  });
+}
+
+function loadPosts() {
+  var el = document.getElementById('posts-list');
+  el.innerHTML = '<div class="manage-empty">Loading...</div>';
+  fetch(SUPABASE_URL + '/rest/v1/posts?select=id,title,week,created_at&order=id.desc', {
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+  }).then(function(r) { return r.json(); }).then(function(posts) {
+    if (!posts.length) { el.innerHTML = '<div class="manage-empty">No posts yet.</div>'; return; }
+    el.innerHTML = '';
+    posts.forEach(function(p) {
+      var row = document.createElement('div');
+      row.className = 'manage-row';
+      var d = p.created_at ? new Date(p.created_at).toLocaleDateString() : '';
+      row.innerHTML = '<div class="manage-info"><div class="manage-title">' + p.title + '</div><div class="manage-meta">WK ' + (p.week||'?') + ' · ' + d + ' · #' + p.id + '</div></div>';
+      var btn = document.createElement('button');
+      btn.className = 'del-btn';
+      btn.textContent = 'DELETE';
+      btn.onclick = function() {
+        if (!confirm('Delete "' + p.title + '"?')) return;
+        btn.disabled = true; btn.textContent = '...';
+        supabaseDelete('posts', p.id).then(function() { loadPosts(); }, function(err) {
+          alert('Delete failed: ' + err); btn.disabled = false; btn.textContent = 'DELETE';
+        });
+      };
+      row.appendChild(btn);
+      el.appendChild(row);
+    });
+  });
+}
+
+function loadApps() {
+  var el = document.getElementById('apps-list');
+  el.innerHTML = '<div class="manage-empty">Loading...</div>';
+  fetch(SUPABASE_URL + '/rest/v1/apps?select=id,name,week,created_at&order=id.desc', {
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+  }).then(function(r) { return r.json(); }).then(function(apps) {
+    if (!apps.length) { el.innerHTML = '<div class="manage-empty">No apps yet.</div>'; return; }
+    el.innerHTML = '';
+    apps.forEach(function(a) {
+      var row = document.createElement('div');
+      row.className = 'manage-row';
+      var d = a.created_at ? new Date(a.created_at).toLocaleDateString() : '';
+      row.innerHTML = '<div class="manage-info"><div class="manage-title">' + a.name + '</div><div class="manage-meta">WK ' + (a.week||'?') + ' · ' + d + ' · #' + a.id + '</div></div>';
+      var btn = document.createElement('button');
+      btn.className = 'del-btn';
+      btn.textContent = 'DELETE';
+      btn.onclick = function() {
+        if (!confirm('Delete "' + a.name + '"?')) return;
+        btn.disabled = true; btn.textContent = '...';
+        supabaseDelete('apps', a.id).then(function() { loadApps(); }, function(err) {
+          alert('Delete failed: ' + err); btn.disabled = false; btn.textContent = 'DELETE';
+        });
+      };
+      row.appendChild(btn);
+      el.appendChild(row);
+    });
+  });
+}
+
+// Refresh lists after publishing
+var origPostClick = document.getElementById('post-btn').onclick;
+var origAppClick = document.getElementById('app-btn').onclick;
+
+// Load lists on admin show
+var _origShowAdmin = showAdmin;
+showAdmin = function() { _origShowAdmin(); loadPosts(); loadApps(); };
+if (sessionStorage.getItem('dracenstein_auth') === '1') { loadPosts(); loadApps(); }
 </script>
 </body>
 </html>
