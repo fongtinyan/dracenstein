@@ -22,16 +22,12 @@ nav a:hover{color:var(--accent);}
 .page-header{padding:60px 0 40px;border-bottom:1px solid var(--border);}
 .page-header h1{font-family:'Cinzel',serif;font-size:clamp(28px,5vw,48px);font-weight:900;color:var(--text);margin-bottom:8px;}
 .page-header p{font-size:12px;color:var(--muted);letter-spacing:2px;}
-
-/* Gate */
 #gate{padding:80px 0;text-align:center;}
 #gate input{background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:'Share Tech Mono',monospace;font-size:14px;padding:12px 20px;width:100%;max-width:320px;outline:none;margin-bottom:16px;}
 #gate input:focus{border-color:var(--accent);}
 #gate button{background:transparent;border:1px solid var(--accent);color:var(--accent);font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:2px;padding:10px 32px;cursor:pointer;transition:all .2s;}
 #gate button:hover{background:var(--accent);color:var(--bg);}
 #gate .error{color:var(--danger);font-size:12px;margin-top:12px;display:none;}
-
-/* Admin panels */
 #admin{display:none;padding:40px 0;}
 .form-section{margin-bottom:60px;}
 .form-section h2{font-family:'Cinzel',serif;font-size:20px;font-weight:700;color:var(--accent);margin-bottom:24px;letter-spacing:2px;}
@@ -44,10 +40,10 @@ nav a:hover{color:var(--accent);}
 .submit-btn{background:transparent;border:1px solid var(--accent);color:var(--accent);font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:2px;padding:12px 40px;cursor:pointer;transition:all .2s;margin-top:8px;}
 .submit-btn:hover{background:var(--accent);color:var(--bg);}
 .submit-btn:disabled{opacity:.4;cursor:not-allowed;}
-.msg{font-size:12px;margin-top:12px;padding:8px 12px;display:none;}
-.msg.success{display:block;color:var(--success);border:1px solid rgba(51,204,102,0.3);}
-.msg.error{display:block;color:var(--danger);border:1px solid rgba(204,51,51,0.3);}
-
+.msg{font-size:12px;margin-top:12px;padding:8px 12px;}
+.msg.success{color:var(--success);border:1px solid rgba(51,204,102,0.3);}
+.msg.error{color:var(--danger);border:1px solid rgba(204,51,51,0.3);}
+.msg.hidden{display:none;}
 footer{border-top:1px solid var(--border);padding:40px 0;display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--muted);}
 footer a{color:var(--muted);text-decoration:none;}
 footer a:hover{color:var(--accent);}
@@ -65,97 +61,50 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
       <a href="https://github.com/fongtinyan/dracenstein" target="_blank">GITHUB</a>
     </div>
   </nav>
-
   <div class="page-header">
     <h1>Admin</h1>
     <p>// content management</p>
   </div>
-
-  <!-- Password Gate -->
   <div id="gate">
     <input type="password" id="pw" placeholder="Enter password" onkeydown="if(event.key==='Enter')checkPw()">
     <br>
     <button onclick="checkPw()">AUTHENTICATE</button>
     <div class="error" id="gate-error">Incorrect password.</div>
   </div>
-
-  <!-- Admin Panel -->
   <div id="admin">
-
-    <!-- Add Blog Post -->
     <div class="form-section">
       <h2>Add Blog Post</h2>
-      <form id="post-form" onsubmit="return submitPost(event)">
-        <div class="form-group">
-          <label>TITLE</label>
-          <input type="text" id="post-title" required>
-        </div>
-        <div class="form-group">
-          <label>CONTENT</label>
-          <textarea id="post-content" required></textarea>
-          <small>Line breaks will be converted to paragraphs.</small>
-        </div>
-        <div class="form-group">
-          <label>WEEK NUMBER</label>
-          <input type="number" id="post-week" required min="1">
-        </div>
-        <div class="form-group">
-          <label>TAGS</label>
-          <input type="text" id="post-tags" placeholder="AI, THREE.JS, DATABASE">
-          <small>Comma separated.</small>
-        </div>
+      <form id="post-form">
+        <div class="form-group"><label>TITLE</label><input type="text" id="post-title" required></div>
+        <div class="form-group"><label>CONTENT</label><textarea id="post-content" required></textarea><small>Line breaks will be converted to paragraphs.</small></div>
+        <div class="form-group"><label>WEEK NUMBER</label><input type="number" id="post-week" required min="1"></div>
+        <div class="form-group"><label>TAGS</label><input type="text" id="post-tags" placeholder="AI, THREE.JS, DATABASE"><small>Comma separated.</small></div>
         <button type="submit" class="submit-btn" id="post-btn">PUBLISH POST</button>
-        <div class="msg" id="post-msg"></div>
+        <div class="msg hidden" id="post-msg"></div>
       </form>
     </div>
-
-    <!-- Add App -->
     <div class="form-section">
       <h2>Add App</h2>
-      <form id="app-form" onsubmit="return submitApp(event)">
-        <div class="form-group">
-          <label>NAME</label>
-          <input type="text" id="app-name" required>
-        </div>
-        <div class="form-group">
-          <label>DESCRIPTION</label>
-          <textarea id="app-desc" required style="min-height:80px;"></textarea>
-        </div>
-        <div class="form-group">
-          <label>WEEK NUMBER</label>
-          <input type="number" id="app-week" required min="1">
-        </div>
-        <div class="form-group">
-          <label>URL</label>
-          <input type="text" id="app-url" required placeholder="https://...">
-        </div>
-        <div class="form-group">
-          <label>TAGS</label>
-          <input type="text" id="app-tags" placeholder="THREE.JS, SUPABASE">
-          <small>Comma separated.</small>
-        </div>
+      <form id="app-form">
+        <div class="form-group"><label>NAME</label><input type="text" id="app-name" required></div>
+        <div class="form-group"><label>DESCRIPTION</label><textarea id="app-desc" required style="min-height:80px;"></textarea></div>
+        <div class="form-group"><label>WEEK NUMBER</label><input type="number" id="app-week" required min="1"></div>
+        <div class="form-group"><label>URL</label><input type="text" id="app-url" required placeholder="https://..."></div>
+        <div class="form-group"><label>TAGS</label><input type="text" id="app-tags" placeholder="THREE.JS, SUPABASE"><small>Comma separated.</small></div>
         <button type="submit" class="submit-btn" id="app-btn">ADD APP</button>
-        <div class="msg" id="app-msg"></div>
+        <div class="msg hidden" id="app-msg"></div>
       </form>
     </div>
-
   </div>
-
   <footer>
     <div>DRACENSTEIN — FONGTINYAN — SYDNEY</div>
     <div><a href="https://github.com/fongtinyan/dracenstein" target="_blank">github</a> · <a href="https://jamison.com.au" target="_blank">jamison.com.au</a></div>
   </footer>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-var sb = window.supabase.createClient('https://pmvgkmiihqyvgjcdcyjw.supabase.co', 'sb_publishable_DEcvBo1uq0dPziHCrUwfTQ_0sq6xkz5');
+var SUPABASE_URL = 'https://pmvgkmiihqyvgjcdcyjw.supabase.co';
+var SUPABASE_KEY = 'sb_publishable_DEcvBo1uq0dPziHCrUwfTQ_0sq6xkz5';
 var PASSWORD = 'dracenstein2026';
-
-// Warn if opened from file://
-if(location.protocol === 'file:'){
-  alert('CMS requires HTTP. Run: npx serve (from project root) then open http://localhost:3000/admin/index.html');
-}
 
 function checkPw() {
   var pw = document.getElementById('pw').value;
@@ -166,78 +115,80 @@ function checkPw() {
     document.getElementById('gate-error').style.display = 'block';
   }
 }
-
 function showAdmin() {
   document.getElementById('gate').style.display = 'none';
   document.getElementById('admin').style.display = 'block';
 }
-
-// Auto-login if already authenticated
-if (sessionStorage.getItem('dracenstein_auth') === '1') {
-  showAdmin();
-}
+if (sessionStorage.getItem('dracenstein_auth') === '1') showAdmin();
 
 function showMsg(id, text, isError) {
   var el = document.getElementById(id);
   el.textContent = text;
   el.className = 'msg ' + (isError ? 'error' : 'success');
-  setTimeout(function() { el.className = 'msg'; el.style.display = 'none'; }, 5000);
 }
 
-function submitPost(e) {
+function supabaseInsert(table, data) {
+  return fetch(SUPABASE_URL + '/rest/v1/' + table, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': SUPABASE_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_KEY,
+      'Prefer': 'return=minimal'
+    },
+    body: JSON.stringify(data)
+  }).then(function(res) {
+    if (!res.ok) return res.text().then(function(t) { return Promise.reject(res.status + ': ' + t); });
+    return 'ok';
+  });
+}
+
+document.getElementById('post-form').addEventListener('submit', function(e) {
   e.preventDefault();
   var btn = document.getElementById('post-btn');
   btn.disabled = true;
   btn.textContent = 'PUBLISHING...';
+  showMsg('post-msg', 'Sending...', false);
 
-  var data = {
+  supabaseInsert('posts', {
     title: document.getElementById('post-title').value.trim(),
     content: document.getElementById('post-content').value,
     week: parseInt(document.getElementById('post-week').value),
     tags: document.getElementById('post-tags').value.trim()
-  };
-
-  sb.from('posts').insert([data]).then(function(res) {
+  }).then(function() {
+    showMsg('post-msg', 'Post published successfully.', false);
+    document.getElementById('post-form').reset();
+  }, function(err) {
+    showMsg('post-msg', 'Error: ' + err, true);
+  }).then(function() {
     btn.disabled = false;
     btn.textContent = 'PUBLISH POST';
-    if (res.error) {
-      showMsg('post-msg', 'Error: ' + res.error.message, true);
-    } else {
-      showMsg('post-msg', 'Post published successfully.', false);
-      document.getElementById('post-form').reset();
-    }
   });
+});
 
-  return false;
-}
-
-function submitApp(e) {
+document.getElementById('app-form').addEventListener('submit', function(e) {
   e.preventDefault();
   var btn = document.getElementById('app-btn');
   btn.disabled = true;
   btn.textContent = 'ADDING...';
+  showMsg('app-msg', 'Sending...', false);
 
-  var data = {
+  supabaseInsert('apps', {
     name: document.getElementById('app-name').value.trim(),
     description: document.getElementById('app-desc').value.trim(),
     week: parseInt(document.getElementById('app-week').value),
     url: document.getElementById('app-url').value.trim(),
     tags: document.getElementById('app-tags').value.trim()
-  };
-
-  sb.from('apps').insert([data]).then(function(res) {
+  }).then(function() {
+    showMsg('app-msg', 'App added successfully.', false);
+    document.getElementById('app-form').reset();
+  }, function(err) {
+    showMsg('app-msg', 'Error: ' + err, true);
+  }).then(function() {
     btn.disabled = false;
     btn.textContent = 'ADD APP';
-    if (res.error) {
-      showMsg('app-msg', 'Error: ' + res.error.message, true);
-    } else {
-      showMsg('app-msg', 'App added successfully.', false);
-      document.getElementById('app-form').reset();
-    }
   });
-
-  return false;
-}
+});
 </script>
 </body>
 </html>
